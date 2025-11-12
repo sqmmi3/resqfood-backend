@@ -1,7 +1,6 @@
 package be.ucll.model;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -52,9 +50,6 @@ public class Item {
     
     @Positive(message = "Opened rule must be at least 1")
     private Integer openedRule = 3;
-
-    @ManyToMany(mappedBy = "items")
-    private List<User> users;
 
     protected Item() {
     }
