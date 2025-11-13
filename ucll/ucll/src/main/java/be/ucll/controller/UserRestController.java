@@ -1,5 +1,6 @@
 package be.ucll.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import be.ucll.service.UserService;
 @RestController
 @RequestMapping("/users")
 public class UserRestController {
-    private UserService userService;
+    private final UserService userService;
 
     public UserRestController(UserService userService) {
         this.userService = userService;
@@ -50,9 +51,9 @@ public class UserRestController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{userId}/items/{itemId}")
-    public User addItemToUser(@PathVariable Long userId, @PathVariable Long itemId) {
-        return userService.addItemToUser(userId, itemId);
+    @PutMapping("/{userId}/items/{itemId}/{expirationDate}")
+    public User addItemToUser(@PathVariable Long userId, @PathVariable Long itemId, @PathVariable LocalDate expirationDate) {
+        return userService.addItemToUser(userId, itemId, expirationDate);
     }
 
     @DeleteMapping("/{userId}/items/{itemId}")

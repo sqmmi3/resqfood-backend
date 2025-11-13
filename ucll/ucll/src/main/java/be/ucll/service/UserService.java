@@ -1,22 +1,29 @@
 package be.ucll.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import be.ucll.exception.DomainException;
 import be.ucll.model.Item;
 import be.ucll.model.User;
+import be.ucll.model.UserItem;
 import be.ucll.repository.ItemRepository;
+import be.ucll.repository.UserItemRepository;
 import be.ucll.repository.UserRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
-    final UserRepository userRepository;
-    final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final UserItemRepository userItemRepository;
 
-    public UserService(UserRepository userRepository, ItemRepository itemRepository) {
+    public UserService(UserRepository userRepository, ItemRepository itemRepository, UserItemRepository userItemRepository) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
+        this.userItemRepository = userItemRepository;
     }
 
     public List<User> getAllUsers() {
@@ -25,7 +32,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+            .orElseThrow(() -> new DomainException("User not found with id: " + id));
     }
 
     public User createUser(User user) {
@@ -35,17 +42,9 @@ public class UserService {
     public User updateUser(Long id, User updatedUser) {
         User existingUser = getUserById(id);
 
-        if (updatedUser.getEmail() != null) {
-            existingUser.setEmail(updatedUser.getEmail());
-        }
-
-        if (updatedUser.getUsername() != null) {
-            existingUser.setUsername(updatedUser.getUsername());
-        }
-
-        if (updatedUser.getPassword() != null) {
-            existingUser.setPassword(updatedUser.getPassword());
-        }
+        if (updatedUser.getEmail() != null) existingUser.setEmail(updatedUser.getEmail());
+        if (updatedUser.getUsername() != null) existingUser.setUsername(updatedUser.getUsername());
+        if (updatedUser.getPassword() != null) existingUser.setPassword(updatedUser.getPassword());
 
         return userRepository.save(existingUser);
     }
@@ -55,21 +54,41 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public User addItemToUser(Long userId, Long itemId) {
+    @Transactional
+    public User addItemToUser(Long userId, Long itemId, LocalDate expirationDate) {
+        if (expirationDate == null) {
+            throw new DomainException("Expiration date is required.");
+        }
+
         User user = getUserById(userId);
         Item item = itemRepository.findById(itemId)
-            .orElseThrow(() -> new RuntimeException("Item not found with id: " + itemId));
+            .orElseThrow(() -> new DomainException("Item not found with id: " + itemId));
 
-        user.addItem(item);
+        boolean alreadyLinked = user.getUserItems().stream()
+            .anyMatch(ui -> ui.getItem().getId().equals(itemId));
+
+        if (!alreadyLinked) {
+            UserItem userItem = new UserItem(user, item, expirationDate);
+            userItemRepository.save(userItem);
+            user.addUserItem(userItem);
+            item.addUserItem(userItem);
+        }
+
         return userRepository.save(user);
     }
 
     public void removeItemFromUser(Long userId, Long itemId) {
         User user = getUserById(userId);
         Item item = itemRepository.findById(itemId)
-            .orElseThrow(() -> new RuntimeException("Item not found with id: " + itemId));
+            .orElseThrow(() -> new DomainException("Item not found with id: " + itemId));
 
-        user.removeItem(item);
-        userRepository.save(user);
+        UserItem link = user.getUserItems().stream()
+            .filter(ui -> ui.getItem().equals(item))
+            .findFirst()
+            .orElseThrow(() -> new DomainException("User does not have this item."));
+
+        user.removeUserItem(link);
+        item.removeUserItem(link);
+        userItemRepository.delete(link);
     }
 }

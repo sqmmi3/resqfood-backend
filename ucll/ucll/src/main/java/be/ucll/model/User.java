@@ -75,6 +75,10 @@ public class User {
         return this.password;
     }
 
+    public List<UserItem> getUserItems() {
+        return this.userItems;
+    }
+
     public List<Item> getItems() {
         return userItems.stream()
                         .map(UserItem::getItem)

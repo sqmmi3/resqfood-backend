@@ -42,6 +42,14 @@ public class UserItem {
 
     protected UserItem() {}
 
+    public UserItem(User user, Item item, LocalDate expirationDate) {
+        setUser(user);
+        setItem(item);
+        setExpirationDate(expirationDate);
+        setOpenedDate(null);
+        setOpenedRule(3);
+    }
+
     public UserItem(User user, Item item, LocalDate expirationDate, LocalDate openedDate, Integer openedRule) {
         setUser(user);
         setItem(item);
@@ -105,6 +113,12 @@ public class UserItem {
 
     @Override
     public String toString() {
-        return "UserItem{id=" + this.id + ", user=" + this.user + ", item=" + this.item + ", expirationDate=" + this.expirationDate + ", openedDate=" + this.openedDate + ", openedRule=" + this.openedRule + "}";
+        return "UserItem{id=" + this.id + 
+            ", userId=" + (this.user != null ? user.getId() : null) + 
+            ", item=" + (this.item != null ? item.getId() : null) + 
+            ", expirationDate=" + this.expirationDate + 
+            ", openedDate=" + this.openedDate + 
+            ", openedRule=" + this.openedRule + 
+            "}";
     }
 }

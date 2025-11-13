@@ -21,7 +21,7 @@ import be.ucll.service.ItemService;
 @RestController
 @RequestMapping("/items")
 public class ItemRestController {
-    final ItemService itemService;
+    private final ItemService itemService;
 
     public ItemRestController(ItemService itemService) {
         this.itemService = itemService;

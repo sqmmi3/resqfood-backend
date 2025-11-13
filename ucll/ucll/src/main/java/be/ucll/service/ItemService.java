@@ -1,17 +1,18 @@
 package be.ucll.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import be.ucll.exception.DomainException;
 import be.ucll.model.Item;
 import be.ucll.repository.ItemRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ItemService {
-    final ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
 
     public ItemService(ItemRepository itemRepository) {
         this.itemRepository = itemRepository;
@@ -23,13 +24,20 @@ public class ItemService {
 
     public Item getItemById(Long id) {
         return itemRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Item not found with id " + id));
+            .orElseThrow(() -> new DomainException("Item not found with id " + id));
     }
 
     public Item createItem(Item item) {
+        if (item.getName() == null || item.getName().isBlank()) {
+            throw new DomainException("Item name is reqguired.");
+        }
+        if (item.getType() == null) {
+            throw new DomainException("Item type is required.");
+        }
         return itemRepository.save(item);
     }
 
+    @Transactional
     public Item updateItem(Long id, Item updatedItem) {
         Item existingItem = getItemById(id);
 
@@ -37,38 +45,35 @@ public class ItemService {
             existingItem.setName(updatedItem.getName());
         }
 
-        if (updatedItem.getExpirationDate() != null) {
-            existingItem.setExpirationDate(updatedItem.getExpirationDate());
-        }
-
-        if (updatedItem.getOpenedDate() != null) {
-            existingItem.setOpenedDate(updatedItem.getOpenedDate());
-        }
-
-        if (updatedItem.getOpenedRule() != null) {
-            existingItem.setOpenedRule(updatedItem.getOpenedRule());
+        if (updatedItem.getType() != null) {
+            existingItem.setType(updatedItem.getType());
         }
 
         return itemRepository.save(existingItem);
     }
 
+    @Transactional
     public Item partiallyUpdateItem(Long id, Map<String, Object> updates) {
         Item existingItem = getItemById(id);
 
         updates.forEach((key, value) -> {
             switch (key) {
                 case "name" -> existingItem.setName((String) value);
-                case "expirationDate" -> existingItem.setExpirationDate((LocalDate) value);
-                case "openedDate" -> existingItem.setOpenedDate((LocalDate) value);
-                case "openedRule" -> existingItem.setOpenedRule((Integer) value);
-
-                default -> throw new IllegalArgumentException("Invalid field: " + key);
+                case "type" -> {
+                    try {
+                        existingItem.setType(Item.Type.valueOf(value.toString().toUpperCase()));
+                    } catch (IllegalArgumentException e) {
+                        throw new DomainException("Invalid item type: " + value);
+                    }
+                }
+                default -> throw new DomainException("Invalid field: " + key);
             }
         });
 
         return itemRepository.save(existingItem);
     }
 
+    @Transactional
     public void deleteItem(Long id) {
         Item item = getItemById(id);
         itemRepository.delete(item);
