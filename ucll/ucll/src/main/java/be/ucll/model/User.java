@@ -3,14 +3,13 @@ package be.ucll.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -48,22 +47,15 @@ public class User {
     @Column(nullable = false, length = 72, name = "password")
     private String password;
 
-    @ManyToMany
-    @JoinTable(
-        schema = "resqfood",
-        name = "users_items",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "item_id")
-    )
-    private List<Item> items = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserItem> userItems = new ArrayList<>();
 
-    protected User() {
-    }
+    protected User() {}
 
     public User(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
+        setUsername(username);
+        setEmail(email);
+        setPassword(password);
     }
 
     // Getters
@@ -84,7 +76,9 @@ public class User {
     }
 
     public List<Item> getItems() {
-        return this.items;
+        return userItems.stream()
+                        .map(UserItem::getItem)
+                        .toList();
     }
 
     // Setters
@@ -101,13 +95,21 @@ public class User {
     }
 
     // Helper Methods
-    public void addItem(Item newItem) {
-        if (!this.items.contains(newItem)) {
-            this.items.add(newItem);
+    public void addUserItem(UserItem userItem) {
+        if (!this.userItems.contains(userItem)) {
+            this.userItems.add(userItem);
+            userItem.setUser(this);
         }
     }
 
-    public void removeItem(Item item) {
-        this.items.remove(item);
+    public void removeUserItem(UserItem userItem) {
+        if (this.userItems.remove(userItem)) {
+            userItem.setUser(null);
+        }
     }
+
+    @Override
+    public String toString() {
+        return "User{id=" + this.id + ", username=" + this.username + ", email=" + this.email + ", items=" + this.getItems() + "}";
+    }    
 }

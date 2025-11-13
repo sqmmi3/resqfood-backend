@@ -1,5 +1,4 @@
 CREATE SCHEMA IF NOT EXISTS resqfood;
-
 SET search_path TO resqfood;
 
 DROP TABLE IF EXISTS users_items CASCADE;
@@ -15,24 +14,26 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(72) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE items (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    expiration_date DATE NOT NULL,
-    "type" VARCHAR(50) NOT NULL,
-    opened_date DATE,
-    opened_rule INTEGER NOT NULL DEFAULT 3,
+    type VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE users_items (
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     item_id BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
-    PRIMARY KEY (user_id, item_id)
+    expiration_date DATE NOT NULL,
+    opened_date DATE,
+    opened_rule INTEGER NOT NULL DEFAULT 3,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -------------------------------
