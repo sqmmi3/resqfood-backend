@@ -8,9 +8,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication
 public class ResqfoodApplication {
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure()
-			.directory("backend/ucll/ucll")
-			.load();
+		Dotenv dotenv = Dotenv.configure().load();
 
 		System.setProperty("DB_HOST", dotenv.get("DB_HOST"));
 		System.setProperty("DB_PORT", dotenv.get("DB_PORT"));
