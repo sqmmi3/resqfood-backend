@@ -1,0 +1,13 @@
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/ResqfoodApplication.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/controller/ItemRestController.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/controller/UserRestController.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/exception/DomainException.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/exception/GlobalExceptionHandler.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/model/Item.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/model/User.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/model/UserItem.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/repository/ItemRepository.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/repository/UserItemRepository.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/repository/UserRepository.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/service/ItemService.java
+/home/sqmmi3/Documents/UCLL/2025-2026/Semester 1/Mobile Application/ResQFood/mobile-apps-team-11/backend/ucll/src/main/java/be/ucll/service/UserService.java
