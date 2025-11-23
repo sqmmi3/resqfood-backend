@@ -26,6 +26,7 @@ public class User {
 
     @NotBlank(message = "Username is required.")
     @Size(min=3, max=50, message = "Username must be between 3 and 50 characters.")
+    @Pattern(regexp = "^\\w+$", message = "Username can only contain letters, numbers, and underscores")
     @Column(unique = true, nullable = false, length = 50, name = "username")
     private String username;
 
