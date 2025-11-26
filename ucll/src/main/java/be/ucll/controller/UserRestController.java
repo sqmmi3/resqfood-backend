@@ -30,14 +30,14 @@ public class UserRestController {
         return userService.getAllUsers();
     }
 
+    @PostMapping
+    public User registerUser(@RequestBody User user) {
+        return userService.registerUser(user);
+    }
+
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
-    }
-
-    @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
     }
 
     @PutMapping("/{id}")

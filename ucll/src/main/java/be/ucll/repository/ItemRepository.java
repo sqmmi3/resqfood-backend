@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import be.ucll.model.Item;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findByNameContainingIgnoreCase(String name);
+  List<Item> findByNameContainingIgnoreCase(String name);
 }

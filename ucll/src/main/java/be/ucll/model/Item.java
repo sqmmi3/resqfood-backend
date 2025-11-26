@@ -18,83 +18,88 @@ import jakarta.validation.constraints.NotNull;
 @Table(schema = "resqfood", name = "items")
 public class Item {
 
-    public enum Type{
-        MEAT,
-        FISH,
-        DAIRY,
-        VEGETABLE,
-        FRUIT,
-        BAKERY,
-        BEVERAGE,
-        OTHER
-    }
+  public enum Type{
+    FRUIT,
+    VEGETABLE,
+    GRAIN,
+    PROTEIN,
+    DAIRY,
+    SWEETS,
+    BEVERAGE,
+    READY_MEAL,
+    SPICE,
+    BAKING,
+    FROZEN,
+    CANNED,
+    PANTRY
+  }
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @NotBlank(message = "Name is required.")
-    private String name;
+  @NotBlank(message = "Name is required.")
+  private String name;
     
-    @NotNull(message = "Type is required.")
-    @Enumerated(EnumType.STRING)
-    private Type type;
+  @NotNull(message = "Type is required.")
+  @Enumerated(EnumType.STRING)
+  private Type type;
 
-    @OneToMany(mappedBy = "item")
-    private List<UserItem> userItems = new ArrayList<>();
+  @OneToMany(mappedBy = "item")
+  private List<UserItem> userItems = new ArrayList<>();
 
-    protected Item() {}
+  protected Item() {}
 
-    public Item(String name, Type type) {
-        setName(name);
-        setType(type);
+  public Item(String name, Type type) {
+    setName(name);
+    setType(type);
+  }
+
+  // Getters
+  public Long getId() {
+    return this.id;
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  public Type getType() {
+    return this.type;
+  }
+
+  public List<UserItem> getUserItems() {
+    return this.userItems;
+  }
+
+  // Setters
+  public void setId(Long newId) {
+    this.id = newId;
+  }
+
+  public void setName(String newName) {
+    this.name = newName;
+  }
+
+  public void setType(Type newType) {
+    this.type = newType;
+  }
+
+  public void addUserItem(UserItem userItem) {
+    if (!userItems.contains(userItem)) {
+      userItems.add(userItem);
+      userItem.setItem(this);
     }
+  }
 
-    // Getters
-    public Long getId() {
-        return this.id;
+  public void removeUserItem(UserItem userItem) {
+    if (userItems.remove(userItem)) {
+      userItem.setItem(null);
     }
+  }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public Type getType() {
-        return this.type;
-    }
-
-    public List<UserItem> getUserItems() {
-        return this.userItems;
-    }
-
-    // Setters
-    public void setId(Long newId) {
-        this.id = newId;
-    }
-
-    public void setName(String newName) {
-        this.name = newName;
-    }
-
-    public void setType(Type newType) {
-        this.type = newType;
-    }
-
-    public void addUserItem(UserItem userItem) {
-        if (!userItems.contains(userItem)) {
-            userItems.add(userItem);
-            userItem.setItem(this);
-        }
-    }
-
-    public void removeUserItem(UserItem userItem) {
-        if (userItems.remove(userItem)) {
-            userItem.setItem(null);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "Item{id=" + this.id + ", name=" + this.name + ", type=" + this.type + "}";
-    }
+  @Override
+  public String toString() {
+    return "Item{id=" + this.id + ", name=" + this.name + ", type=" + this.type + "}";
+  }
 }
