@@ -3,6 +3,7 @@ package be.ucll.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import be.ucll.exception.DomainException;
@@ -19,11 +20,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final UserItemRepository userItemRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, ItemRepository itemRepository, UserItemRepository userItemRepository) {
+    public UserService(UserRepository userRepository, ItemRepository itemRepository, UserItemRepository userItemRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.userItemRepository = userItemRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> getAllUsers() {
@@ -35,7 +38,14 @@ public class UserService {
             .orElseThrow(() -> new DomainException("User not found with id: " + id));
     }
 
-    public User createUser(User user) {
+    public User registerUser(User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new DomainException("Email is required.");
+        }
+
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+
         return userRepository.save(user);
     }
 
