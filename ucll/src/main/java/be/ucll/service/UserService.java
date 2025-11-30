@@ -39,8 +39,12 @@ public class UserService {
     }
 
     public User registerUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new DomainException("Email is required.");
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new IllegalArgumentException("Username is already registered.");
+        }
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email is already registered.");
         }
 
         String hashedPassword = passwordEncoder.encode(user.getPassword());

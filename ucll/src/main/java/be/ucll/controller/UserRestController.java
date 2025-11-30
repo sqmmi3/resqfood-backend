@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.ucll.dto.UserDTO;
 import be.ucll.model.User;
 import be.ucll.service.UserService;
 
@@ -31,8 +32,12 @@ public class UserRestController {
     }
 
     @PostMapping
-    public User registerUser(@RequestBody User user) {
-        return userService.registerUser(user);
+    public ResponseEntity<UserDTO> registerUser(@RequestBody User user) {
+        User savedUser = userService.registerUser(user);
+
+        UserDTO userDTO = new UserDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
+
+        return ResponseEntity.status(201).body(userDTO);
     }
 
     @GetMapping("/{id}")
