@@ -8,7 +8,7 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
-	"jwt.secret=test_secret_1234567890_test_secret_key",
+	"jwt.secret=Y8r3mP9wQ2tF6sV1xB7eH4kN0uJ5cR8Z",
 	"jwt.expiration=3600000"
 })
 class ResqfoodApplicationTests {
