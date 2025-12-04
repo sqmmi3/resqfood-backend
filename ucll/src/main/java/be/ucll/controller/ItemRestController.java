@@ -47,11 +47,6 @@ public class ItemRestController {
         return itemService.updateItem(id, item);
     }
 
-    @PatchMapping("/{id}")
-    public Item partiallyUpdateItem(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
-        return itemService.partiallyUpdateItem(id, updates);
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
         itemService.deleteItem(id);

@@ -59,87 +59,36 @@ public class Item {
 
   protected Item() {}
 
-  public Item(String name, Category category) {
-    setName(name);
-    setCategory(category);
-  }
-
-  public Item(String name, Category category, Integer quantity, LocalDate expirationDate) {
-    setName(name);
-    setCategory(category);
-    setQuantity(quantity);
-    setExpirationDate(expirationDate);
+  public Item(String name, LocalDate expirationDate) {
+    this.name = name;
+    this.expirationDate = expirationDate;
   }
 
   public Item(String name, Category category, Integer quantity, LocalDate expirationDate, String description) {
-    setName(name);
-    setCategory(category);
-    setQuantity(quantity);
-    setExpirationDate(expirationDate);
-    setDescription(description);
+    this.name = name;
+    this.category = category;
+    this.quantity = quantity;
+    this.expirationDate = expirationDate;
+    this.description = description;
   }
 
   // Getters
-  public Long getId() {
-    return this.id;
-  }
-
-  public String getName() {
-    return this.name;
-  }
-
-  public Category getCategory() {
-    return this.category;
-  }
-
-  public List<UserItem> getUserItems() {
-    return this.userItems;
-  }
-
-  public Integer getQuantity() {
-    return this.quantity;
-  }
-
-  public LocalDate getExpirationDate() {
-    return this.expirationDate;
-  }
-
-  public LocalDate getOpenedDate() {
-    return this.openedDate;
-  }
-
-  public String getDescription() {
-    return this.description;
-  }
+  public Long getId() { return id; }
+  public String getName() { return name; }
+  public Category getCategory() { return category; }
+  public Integer getQuantity() { return quantity; }
+  public LocalDate getExpirationDate() { return expirationDate; }
+  public LocalDate getOpenedDate() { return openedDate; }
+  public String getDescription() { return description; }
+  public List<UserItem> getUserItems() { return userItems; }
 
   // Setters
-  public void setId(Long newId) {
-    this.id = newId;
-  }
-
-  public void setName(String newName) {
-    this.name = newName;
-  }
-
-  public void setCategory(Category newCategory) {
-    this.category = newCategory;
-  }
-
-  public void setQuantity(Integer newQuantity) {
-    this.quantity = newQuantity;
-  }
-
-  public void setExpirationDate(LocalDate newExpirationDate) {
-    this.expirationDate = newExpirationDate;
-  }
-
-  public void setOpenedDate(LocalDate newOpenedDate) {
-    this.openedDate = newOpenedDate;
-  }
-
-  public void setDescription(String newDescription) {
-    this.description = newDescription;
-  }
+  public void setName(String name) { this.name = name; }
+  public void setCategory(Category category) { this.category = category; }
+  public void setQuantity(Integer quantity) { this.quantity = quantity; }
+  public void setExpirationDate(LocalDate expirationDate) { this.expirationDate = expirationDate; }
+  public void setOpenedDate(LocalDate openedDate) { this.openedDate = openedDate; }
+  public void setDescription(String description) { this.description = description; }
 
   public void addUserItem(UserItem userItem) {
     if (!userItems.contains(userItem)) {
@@ -156,6 +105,6 @@ public class Item {
 
   @Override
   public String toString() {
-    return "Item{id=" + this.id + ", name=" + this.name + ", category=" + this.category + ", quantity=" + this.quantity + ", expirationDate=" + this.expirationDate + ", openedDate=" + this.openedDate + ", description=" + this.description + "}";
+    return "Item{id=" + id + ", name=" + name + ", category=" + category + ", quantity=" + quantity + ", expirationDate=" + expirationDate + ", description=" + description + "}";
   }
 }
