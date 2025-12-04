@@ -5,6 +5,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import be.ucll.dto.ItemDTO;
+import be.ucll.dto.UserItemDTO;
+import be.ucll.dto.ItemDTO;
+import be.ucll.dto.UserItemDTO;
 import be.ucll.exception.DomainException;
 import be.ucll.model.Item;
 import be.ucll.repository.ItemRepository;
@@ -29,10 +33,10 @@ public class ItemService {
 
     public Item createItem(Item item) {
         if (item.getName() == null || item.getName().isBlank()) {
-            throw new DomainException("Item name is reqguired.");
+            throw new DomainException("Item name is required.");
         }
-        if (item.getType() == null) {
-            throw new DomainException("Item type is required.");
+        if (item.getExpirationDate() == null) {
+            throw new DomainException("Item expiration date is required.");
         }
         return itemRepository.save(item);
     }
@@ -45,8 +49,24 @@ public class ItemService {
             existingItem.setName(updatedItem.getName());
         }
 
-        if (updatedItem.getType() != null) {
-            existingItem.setType(updatedItem.getType());
+        if (updatedItem.getCategory() != null) {
+            existingItem.setCategory(updatedItem.getCategory());
+        }
+
+        if (updatedItem.getQuantity() != null) {
+            existingItem.setQuantity(updatedItem.getQuantity());
+        }
+
+        if (updatedItem.getExpirationDate() != null) {
+            existingItem.setExpirationDate(updatedItem.getExpirationDate());
+        }
+
+        if (updatedItem.getOpenedDate() != null) {
+            existingItem.setOpenedDate(updatedItem.getOpenedDate());
+        }
+
+        if (updatedItem.getDescription() != null) {
+            existingItem.setDescription(updatedItem.getDescription());
         }
 
         return itemRepository.save(existingItem);
@@ -59,13 +79,17 @@ public class ItemService {
         updates.forEach((key, value) -> {
             switch (key) {
                 case "name" -> existingItem.setName((String) value);
-                case "type" -> {
+                case "category" -> {
                     try {
-                        existingItem.setType(Item.Type.valueOf(value.toString().toUpperCase()));
+                        existingItem.setCategory(Item.Category.valueOf(value.toString().toUpperCase()));
                     } catch (IllegalArgumentException e) {
-                        throw new DomainException("Invalid item type: " + value);
+                        throw new DomainException("Invalid item category: " + value);
                     }
                 }
+                case "quantity" -> existingItem.setQuantity(((Number) value).intValue());
+                case "expirationDate" -> existingItem.setExpirationDate(java.time.LocalDate.parse(value.toString()));
+                case "openedDate" -> existingItem.setOpenedDate(java.time.LocalDate.parse(value.toString()));
+                case "description" -> existingItem.setDescription((String) value);
                 default -> throw new DomainException("Invalid field: " + key);
             }
         });
@@ -81,5 +105,26 @@ public class ItemService {
 
     public List<Item> searchItems(String name) {
         return itemRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    private ItemDTO convertToDTO(Item item) {
+        List<UserItemDTO> users = item.getUserItems().stream()
+            .map(ui -> new UserItemDTO(
+                ui.getUser().getId(),
+                ui.getUser().getUsername(),
+                ui.getExpirationDate(),
+                ui.getOpenedDate(),
+                ui.getOpenedRule()
+            ))
+            .toList();
+        return new ItemDTO(
+            item.getId(),
+            item.getName(),
+            item.getCategory().toString(),
+            item.getQuantity(),
+            item.getExpirationDate(),
+            item.getDescription(),
+            users
+        );
     }
 }

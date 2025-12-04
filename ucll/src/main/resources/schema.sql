@@ -21,7 +21,11 @@ CREATE TABLE users (
 CREATE TABLE items (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    type VARCHAR(50) NOT NULL,
+    category VARCHAR(50),
+    quantity INTEGER,
+    expiration_date DATE NOT NULL,
+    opened_date DATE,
+    description TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
