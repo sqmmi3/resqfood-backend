@@ -1,5 +1,6 @@
 package be.ucll.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import be.ucll.model.Item;
 import be.ucll.model.User;
-import be.ucll.model.Item.Type;
 
 @Configuration
 @Profile("dev")
@@ -56,10 +56,10 @@ public class DbInitializer {
       if (itemRepository.count() == 0) {
         logger.info("Seeding items...");
 
-        Item milk = new Item("Milk Everyday", Type.DAIRY);
-        Item bread = new Item("Bread Moregrains", Type.GRAIN);
-        Item eggs = new Item("Eggs Boni 6x", Type.PROTEIN);
-        Item cheese = new Item("Cheese Jong Everyday", Type.DAIRY);
+        Item milk = new Item("Milk Everyday", Item.Category.DAIRY, 2, LocalDate.now().plusDays(7), "Full fat milk");
+        Item bread = new Item("Bread Moregrains", Item.Category.GRAIN, 1, LocalDate.now().plusDays(5), "Whole grain bread");
+        Item eggs = new Item("Eggs Boni 6x", Item.Category.PROTEIN, 6, LocalDate.now().plusDays(21), "Brown eggs");
+        Item cheese = new Item("Cheese Jong Everyday", Item.Category.DAIRY, 500, LocalDate.now().plusDays(30), "Aged cheese");
 
         itemRepository.saveAll(List.of(milk, bread, eggs, cheese));
 
