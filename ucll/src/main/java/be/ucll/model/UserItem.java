@@ -1,6 +1,7 @@
 package be.ucll.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,6 +40,8 @@ public class UserItem {
 
   @Positive(message = "Opened rule must be at least 1.")
   private Integer openedRule = 3;
+
+  private LocalDateTime lastNotifiedAt;
 
   protected UserItem() {}
 
@@ -83,6 +86,10 @@ public class UserItem {
     return this.openedRule;
   }
 
+  public LocalDateTime getLastNotifiedAt() {
+    return this.lastNotifiedAt;
+  }
+
   // Setters
   public void setId(Long newId) {
     this.id = newId;
@@ -109,6 +116,10 @@ public class UserItem {
 
   public void setOpenedRule(Integer newOpenedRule) {
     this.openedRule = newOpenedRule;
+  }
+
+  public void setLastNotifiedAt(LocalDateTime newLastNotifiedAt) {
+    this.lastNotifiedAt = newLastNotifiedAt;
   }
   
   @Override
