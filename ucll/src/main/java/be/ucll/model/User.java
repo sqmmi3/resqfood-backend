@@ -51,6 +51,9 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserItem> userItems = new ArrayList<>();
 
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<UserDeviceToken> deviceTokens = new ArrayList<>();
+
   protected User() {}
 
   public User(String username, String email, String password) {
@@ -86,6 +89,10 @@ public class User {
                     .toList();
   }
 
+  public List<UserDeviceToken> getDeviceTokens() {
+    return this.deviceTokens;
+  }
+
   // Setters
   public void setUsername(String newUsername) {
     this.username = newUsername;
@@ -111,6 +118,16 @@ public class User {
     if (this.userItems.remove(userItem)) {
       userItem.setUser(null);
     }
+  }
+
+  public void addDeviceToken(UserDeviceToken token) {
+    deviceTokens.add(token);
+    token.setUser(this);
+  }
+
+  public void removeDeviceToken(UserDeviceToken token) {
+    deviceTokens.remove(token);
+    token.setUser(null);
   }
 
   @Override

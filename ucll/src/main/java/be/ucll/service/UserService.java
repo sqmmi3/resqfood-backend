@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import be.ucll.exception.DomainException;
 import be.ucll.model.Item;
 import be.ucll.model.User;
+import be.ucll.model.UserDeviceToken;
 import be.ucll.model.UserItem;
 import be.ucll.repository.ItemRepository;
+import be.ucll.repository.UserDeviceTokenRepository;
 import be.ucll.repository.UserItemRepository;
 import be.ucll.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -21,12 +23,14 @@ public class UserService {
     private final ItemRepository itemRepository;
     private final UserItemRepository userItemRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserDeviceTokenRepository userDeviceTokenRepository;
 
-    public UserService(UserRepository userRepository, ItemRepository itemRepository, UserItemRepository userItemRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, ItemRepository itemRepository, UserItemRepository userItemRepository, PasswordEncoder passwordEncoder, UserDeviceTokenRepository userDeviceTokenRepository) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.userItemRepository = userItemRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userDeviceTokenRepository = userDeviceTokenRepository;
     }
 
     public List<User> getAllUsers() {
@@ -104,5 +108,38 @@ public class UserService {
         user.removeUserItem(link);
         item.removeUserItem(link);
         userItemRepository.delete(link);
+    }
+
+    public void addDeviceToken(String username, String token, String deviceName) {
+        User user = userRepository.findByUsername(username)
+          .orElseThrow(() -> new DomainException("User not found"));
+        
+        boolean exists = user.getDeviceTokens().stream()
+          .anyMatch(t -> t.getToken().equals(token));
+
+        if (!exists) {
+            UserDeviceToken newToken = new UserDeviceToken(user, token, deviceName);
+            user.addDeviceToken(newToken);
+            userRepository.save(user);
+        }
+    }
+
+    public List<String> getDeviceTokens(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new DomainException("User not found"));
+
+        return userDeviceTokenRepository.findAllByUserId(user.getId())
+            .stream()
+            .map(UserDeviceToken::getToken)
+            .toList();
+    }
+
+    public void removeDeviceToken(String token) {
+        UserDeviceToken deviceToken = userDeviceTokenRepository.findByToken(token)
+          .orElseThrow(() -> new DomainException("Device token not found"));
+        
+          User user = deviceToken.getUser();
+          user.removeDeviceToken(deviceToken);
+          userRepository.save(user);
     }
 }
