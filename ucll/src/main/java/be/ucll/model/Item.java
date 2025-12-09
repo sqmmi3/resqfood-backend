@@ -1,8 +1,9 @@
 package be.ucll.model;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,13 +14,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(schema = "resqfood", name = "items")
 public class Item {
 
-  public enum Category{
+  public enum Type{
     FRUIT,
     VEGETABLE,
     GRAIN,
@@ -43,52 +43,32 @@ public class Item {
   private String name;
     
   @Enumerated(EnumType.STRING)
-  private Category category;
+  private Type type;
 
-  private Integer quantity;
+  private Integer openedRule = 3;
 
-  @NotNull(message = "Expiration date is required.")
-  private LocalDate expirationDate;
-
-  private LocalDate openedDate;
-
-  private String description;
-
+  @JsonBackReference
   @OneToMany(mappedBy = "item")
   private List<UserItem> userItems = new ArrayList<>();
 
   protected Item() {}
 
-  public Item(String name, LocalDate expirationDate) {
-    this.name = name;
-    this.expirationDate = expirationDate;
-  }
-
-  public Item(String name, Category category, Integer quantity, LocalDate expirationDate, String description) {
-    this.name = name;
-    this.category = category;
-    this.quantity = quantity;
-    this.expirationDate = expirationDate;
-    this.description = description;
+  public Item(String name, Type type) {
+    setName(name);
+    setType(type);
   }
 
   // Getters
-  public Long getId() { return id; }
-  public String getName() { return name; }
-  public Category getCategory() { return category; }
-  public Integer getQuantity() { return quantity; }
-  public LocalDate getExpirationDate() { return expirationDate; }
-  public LocalDate getOpenedDate() { return openedDate; }
-  public String getDescription() { return description; }
-  public List<UserItem> getUserItems() { return userItems; }
+  public Long getId() { return this.id; }
+  public String getName() { return this.name; }
+  public Type getType() { return this.type; }
+  public Integer getOpenedRule() { return this.openedRule ;}
+  public List<UserItem> getUserItems() { return this.userItems; }
 
   // Setters
-  public void setName(String name) { this.name = name; }
-  public void setCategory(Category category) { this.category = category; }
-  public void setQuantity(Integer quantity) { this.quantity = quantity; }
-  public void setExpirationDate(LocalDate expirationDate) { this.expirationDate = expirationDate; }
-  public void setOpenedDate(LocalDate openedDate) { this.openedDate = openedDate; }
-  public void setDescription(String description) { this.description = description; }
+  public void setName(String newName) { this.name = newName; }
+  public void setType(Type newType) { this.type = newType; }
+  public void setOpenedRule(Integer newOpenedRule) { this.openedRule = newOpenedRule; }
 
   public void addUserItem(UserItem userItem) {
     if (!userItems.contains(userItem)) {
@@ -105,6 +85,6 @@ public class Item {
 
   @Override
   public String toString() {
-    return "Item{id=" + id + ", name=" + name + ", category=" + category + ", quantity=" + quantity + ", expirationDate=" + expirationDate + ", description=" + description + "}";
+    return "Item{id=" + this.id + ", name=" + this.name + ", type=" + this.type + "}";
   }
 }

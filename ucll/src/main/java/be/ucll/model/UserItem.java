@@ -3,6 +3,8 @@ package be.ucll.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,10 +25,12 @@ public class UserItem {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @JsonManagedReference
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
+  @JsonManagedReference
   @ManyToOne
   @JoinColumn(name = "item_id", nullable = false)
   private Item item;
@@ -39,7 +43,7 @@ public class UserItem {
   private LocalDate openedDate;
 
   @Positive(message = "Opened rule must be at least 1.")
-  private Integer openedRule = 3;
+  private Integer openedRule;
 
   private LocalDateTime lastNotifiedAt;
 
@@ -50,7 +54,15 @@ public class UserItem {
     setItem(item);
     setExpirationDate(expirationDate);
     setOpenedDate(null);
-    setOpenedRule(3);
+    setOpenedRule(null);
+  }
+
+  public UserItem(User user, Item item, LocalDate expirationDate, LocalDate openedDate) {
+    setUser(user);
+    setItem(item);
+    setExpirationDate(expirationDate);
+    setOpenedDate(openedDate);
+    setOpenedRule(null);
   }
 
   public UserItem(User user, Item item, LocalDate expirationDate, LocalDate openedDate, Integer openedRule) {
@@ -83,7 +95,7 @@ public class UserItem {
   }
 
   public Integer getOpenedRule() {
-    return this.openedRule;
+    return this.openedRule != null ? this.openedRule : item.getOpenedRule();
   }
 
   public LocalDateTime getLastNotifiedAt() {
