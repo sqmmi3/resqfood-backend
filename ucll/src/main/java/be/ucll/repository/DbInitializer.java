@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import be.ucll.model.Item;
 import be.ucll.model.User;
+import be.ucll.model.UserItem;
+import be.ucll.model.Item.Type;
 
 @Configuration
 @Profile("dev")
@@ -24,6 +26,7 @@ public class DbInitializer {
   public CommandLineRunner initDatabase(
     UserRepository userRepository,
     ItemRepository itemRepository,
+    UserItemRepository userItemRepository,
     PasswordEncoder passwordEncoder
   ) {
     return args -> {
@@ -56,14 +59,42 @@ public class DbInitializer {
       if (itemRepository.count() == 0) {
         logger.info("Seeding items...");
 
-        Item milk = new Item("Milk Everyday", Item.Category.DAIRY, 2, LocalDate.now().plusDays(7), "Full fat milk");
-        Item bread = new Item("Bread Moregrains", Item.Category.GRAIN, 1, LocalDate.now().plusDays(5), "Whole grain bread");
-        Item eggs = new Item("Eggs Boni 6x", Item.Category.PROTEIN, 6, LocalDate.now().plusDays(21), "Brown eggs");
-        Item cheese = new Item("Cheese Jong Everyday", Item.Category.DAIRY, 500, LocalDate.now().plusDays(30), "Aged cheese");
+        Item milk = new Item("Milk Everyday", Type.DAIRY);
+        Item bread = new Item("Bread Moregrains", Type.GRAIN);
+        Item eggs = new Item("Eggs Boni 6x", Type.PROTEIN);
+        Item cheese = new Item("Cheese Jong Everyday", Type.DAIRY);
 
         itemRepository.saveAll(List.of(milk, bread, eggs, cheese));
 
         logger.info("Items seeded!");
+      }
+
+      if (userItemRepository.count() == 0) {
+        logger.info("Seeding user_items");
+
+        User sqmmi3 = userRepository.findByUsername("sqmmi3")
+          .orElseThrow(() -> new RuntimeException("User sqmmi3 not found."));
+        
+        Item milk = itemRepository.findByNameContainingIgnoreCase("Milk Everyday");
+
+        Item bread = itemRepository.findByNameContainingIgnoreCase("Bread Moregrains");
+
+        Item eggs = itemRepository.findByNameContainingIgnoreCase("Eggs Boni 6x");
+
+        Item cheese = itemRepository.findByNameContainingIgnoreCase("Cheese Jong Everyday");
+
+        UserItem sqmmi3milk1 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24), LocalDate.now(), 6);
+        UserItem sqmmi3milk2 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24));
+        UserItem sqmmi3milk3 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(28));
+        UserItem sqmmi3bread1 = new UserItem(sqmmi3, bread, LocalDate.now().plusDays(5), LocalDate.now(), 4);
+        UserItem sqmmi3eggs1 = new UserItem(sqmmi3, eggs, LocalDate.now().plusDays(16));
+        UserItem sqmmi3cheese1 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(48));
+        UserItem sqmmi3cheese2 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(64));
+        UserItem sqmmi3cheese3 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(32), LocalDate.now(), 8);
+
+        userItemRepository.saveAll(List.of(sqmmi3milk1, sqmmi3milk2, sqmmi3milk3, sqmmi3bread1, sqmmi3eggs1, sqmmi3cheese1, sqmmi3cheese2, sqmmi3cheese3));
+
+        logger.info("User_Item s seeded!");
       }
     };
   }

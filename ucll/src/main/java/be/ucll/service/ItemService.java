@@ -29,20 +29,12 @@ public class ItemService {
         if (item.getName() == null || item.getName().isBlank()) {
             throw new DomainException("Item name is required");
         }
-        if (item.getExpirationDate() == null) {
-            throw new DomainException("Expiration date is required");
-        }
         return itemRepository.save(item);
     }
 
     public Item updateItem(Long id, Item item) {
         Item existing = getItemById(id);
         if (item.getName() != null) existing.setName(item.getName());
-        if (item.getCategory() != null) existing.setCategory(item.getCategory());
-        if (item.getQuantity() != null) existing.setQuantity(item.getQuantity());
-        if (item.getExpirationDate() != null) existing.setExpirationDate(item.getExpirationDate());
-        if (item.getOpenedDate() != null) existing.setOpenedDate(item.getOpenedDate());
-        if (item.getDescription() != null) existing.setDescription(item.getDescription());
         return itemRepository.save(existing);
     }
 
@@ -50,7 +42,7 @@ public class ItemService {
         itemRepository.delete(getItemById(id));
     }
 
-    public List<Item> searchItems(String name) {
+    public Item searchItems(String name) {
         return itemRepository.findByNameContainingIgnoreCase(name);
     }
 }
