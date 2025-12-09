@@ -21,11 +21,8 @@ CREATE TABLE users (
 CREATE TABLE items (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    category VARCHAR(50),
-    quantity INTEGER,
-    expiration_date DATE NOT NULL,
-    opened_date DATE,
-    description TEXT,
+    type VARCHAR(50),
+    opened_rule INTEGER NOT NULL DEFAULT 3,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -36,7 +33,7 @@ CREATE TABLE users_items (
     item_id BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
     expiration_date DATE NOT NULL,
     opened_date DATE,
-    opened_rule INTEGER NOT NULL DEFAULT 3,
+    opened_rule INTEGER,
     last_notified_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
