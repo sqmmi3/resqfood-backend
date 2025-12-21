@@ -3,7 +3,7 @@ package be.ucll.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,7 +47,7 @@ public class Item {
 
   private Integer openedRule = 3;
 
-  @JsonBackReference
+  @JsonIgnore
   @OneToMany(mappedBy = "item")
   private List<UserItem> userItems = new ArrayList<>();
 
