@@ -3,8 +3,7 @@ package be.ucll.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -51,11 +50,11 @@ public class User {
   @Column(nullable = false, length = 72, name = "password")
   private String password;
 
-  @JsonBackReference
+  @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserItem> userItems = new ArrayList<>();
 
-  @JsonManagedReference
+  @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserDeviceToken> deviceTokens = new ArrayList<>();
 
