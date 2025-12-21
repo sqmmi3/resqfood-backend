@@ -35,6 +35,7 @@ CREATE TABLE users_items (
     opened_date DATE,
     opened_rule INTEGER,
     last_notified_at TIMESTAMP,
+    description VARCHAR(128),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
