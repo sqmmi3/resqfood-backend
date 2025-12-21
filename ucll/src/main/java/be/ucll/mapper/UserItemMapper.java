@@ -14,7 +14,8 @@ public final class UserItemMapper {
         userItem.getItem().getType().name(),
         userItem.getExpirationDate(),
         userItem.getOpenedDate(),
-        userItem.getOpenedRule()
+        userItem.getOpenedRule(),
+        userItem.getDescription()
     );
   }
 }

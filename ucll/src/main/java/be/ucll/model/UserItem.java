@@ -3,6 +3,7 @@ package be.ucll.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +15,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(schema = "resqfood", name = "users_items")
@@ -43,6 +45,10 @@ public class UserItem {
 
   private LocalDateTime lastNotifiedAt;
 
+  @Column(name = "description", length = 128)
+  @Size(min = 0, max = 128, message = "Description cannot be longer than 128 characters.")
+  private String description;
+
   protected UserItem() {}
 
   public UserItem(User user, Item item, LocalDate expirationDate) {
@@ -51,6 +57,7 @@ public class UserItem {
     setExpirationDate(expirationDate);
     setOpenedDate(null);
     setOpenedRule(null);
+    setDescription(null);
   }
 
   public UserItem(User user, Item item, LocalDate expirationDate, LocalDate openedDate) {
@@ -59,6 +66,7 @@ public class UserItem {
     setExpirationDate(expirationDate);
     setOpenedDate(openedDate);
     setOpenedRule(null);
+    setDescription(null);
   }
 
   public UserItem(User user, Item item, LocalDate expirationDate, LocalDate openedDate, Integer openedRule) {
@@ -67,6 +75,34 @@ public class UserItem {
     setExpirationDate(expirationDate);
     setOpenedDate(openedDate);
     setOpenedRule(openedRule);
+    setDescription(null);
+  }
+
+  public UserItem(User user, Item item, LocalDate expirationDate, String description) {
+    setUser(user);
+    setItem(item);
+    setExpirationDate(expirationDate);
+    setOpenedDate(null);
+    setOpenedRule(null);
+    setDescription(description);
+  }
+
+  public UserItem(User user, Item item, LocalDate expirationDate, LocalDate openedDate, String description) {
+    setUser(user);
+    setItem(item);
+    setExpirationDate(expirationDate);
+    setOpenedDate(openedDate);
+    setOpenedRule(null);
+    setDescription(description);
+  }
+
+  public UserItem(User user, Item item, LocalDate expirationDate, LocalDate openedDate, Integer openedRule, String description) {
+    setUser(user);
+    setItem(item);
+    setExpirationDate(expirationDate);
+    setOpenedDate(openedDate);
+    setOpenedRule(openedRule);
+    setDescription(description);
   }
 
   // Getters
@@ -96,6 +132,10 @@ public class UserItem {
 
   public LocalDateTime getLastNotifiedAt() {
     return this.lastNotifiedAt;
+  }
+
+  public String getDescription() {
+    return this.description;
   }
 
   // Setters
@@ -129,6 +169,10 @@ public class UserItem {
   public void setLastNotifiedAt(LocalDateTime newLastNotifiedAt) {
     this.lastNotifiedAt = newLastNotifiedAt;
   }
+
+  public void setDescription(String newDescription) {
+    this.description = newDescription;
+  }
   
   @Override
   public String toString() {
@@ -137,7 +181,8 @@ public class UserItem {
       ", item=" + (this.item != null ? item.getId() : null) + 
       ", expirationDate=" + this.expirationDate + 
       ", openedDate=" + this.openedDate + 
-      ", openedRule=" + this.openedRule + 
+      ", openedRule=" + this.openedRule +
+      ", description=" + this.description + 
     "}";
   }
 }

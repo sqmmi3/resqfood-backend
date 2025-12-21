@@ -9,16 +9,18 @@ public class UserItemDTO {
   private LocalDate expirationDate;
   private LocalDate openedDate;
   private Integer openedRule;
+  private String description;
 
   public UserItemDTO() {}
 
-  public UserItemDTO(Long id, Long itemId, String itemName, LocalDate expirationDate, LocalDate openedDate, Integer openedRule) {
+  public UserItemDTO(Long id, Long itemId, String itemName, LocalDate expirationDate, LocalDate openedDate, Integer openedRule, String description) {
     this.id = id;
     this.itemId = itemId;
     this.itemName = itemName;
     this.expirationDate = expirationDate;
     this.openedDate = openedDate;
     this.openedRule = openedRule;
+    this.description = description;
   }
 
   // Getters
@@ -33,4 +35,6 @@ public class UserItemDTO {
   public LocalDate getOpenedDate() { return this.openedDate; }
   
   public Integer getOpenedRule() { return this.openedRule; }
+
+  public String getDescription() { return this.description; }
 }
