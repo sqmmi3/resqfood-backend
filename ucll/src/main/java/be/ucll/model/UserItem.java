@@ -3,8 +3,6 @@ package be.ucll.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,12 +23,10 @@ public class UserItem {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @JsonManagedReference
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @JsonManagedReference
   @ManyToOne
   @JoinColumn(name = "item_id", nullable = false)
   private Item item;

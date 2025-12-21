@@ -111,8 +111,7 @@ public class UserService {
     }
 
     public void addDeviceToken(String username, String token, String deviceName) {
-        User user = userRepository.findByUsername(username)
-          .orElseThrow(() -> new DomainException("User not found"));
+        User user = getUser(username);
         
         boolean exists = user.getDeviceTokens().stream()
           .anyMatch(t -> t.getToken().equals(token));
@@ -125,8 +124,7 @@ public class UserService {
     }
 
     public List<String> getDeviceTokens(String username) {
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new DomainException("User not found"));
+        User user = getUser(username);
 
         return userDeviceTokenRepository.findAllByUserId(user.getId())
             .stream()
@@ -141,5 +139,10 @@ public class UserService {
           User user = deviceToken.getUser();
           user.removeDeviceToken(deviceToken);
           userRepository.save(user);
+    }
+
+    public User getUser(String username) {
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new DomainException("User not found"));
     }
 }
