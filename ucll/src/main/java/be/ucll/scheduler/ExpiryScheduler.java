@@ -10,9 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import be.ucll.model.UserDeviceToken;
 import be.ucll.model.UserItem;
 import be.ucll.repository.UserItemRepository;
 import be.ucll.service.PushNotificationService;
+import jakarta.transaction.Transactional;
 
 @Component
 public class ExpiryScheduler {
@@ -29,49 +31,59 @@ public class ExpiryScheduler {
     this.pushNotificationService = pushNotificationService;
   }
 
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(cron = "0 0 9 * * *")
+  @Transactional
   public void checkExpiries() {
     logger.info("Running expiry scheduler...");
 
     LocalDate today = LocalDate.now();
+    LocalDate sevenDaysFromNow = today.plusDays(7);
 
-    for (UserItem userItem : userItemRepository.findAll()) {
+    List<UserItem> candidates = userItemRepository.findPotentialExpiries(sevenDaysFromNow);
+
+    for (UserItem userItem : candidates) {
+      if (!shouldSendReminder(userItem)) continue;
+
       LocalDate expiryDate = calculateExpiryDate(userItem);
-
       long daysUntilExpiry = ChronoUnit.DAYS.between(today, expiryDate);
 
-      if (REMINDER_DAYS.contains(daysUntilExpiry) && shouldSendReminder(userItem)) {
-          sendNotification(userItem, "Reminder: your item " + userItem.getItem().getName() + " expires in " + daysUntilExpiry + " days!");
-          userItem.setLastNotifiedAt(LocalDateTime.now());
-          userItemRepository.save(userItem);
-      }
+      String message = determineMessage(userItem.getItem().getName(), daysUntilExpiry);
 
-      if (!expiryDate.isAfter(today) && shouldSendReminder(userItem)) {
-        sendNotification(userItem, "Your item " + userItem.getItem().getName() + " has expired!");
+      if (message != null) {
+        sendNotification(userItem, message);
         userItem.setLastNotifiedAt(LocalDateTime.now());
-        userItemRepository.save(userItem);
       }
     }
+  }
+
+  private String determineMessage(String itemName, long daysUntil) {
+    if (daysUntil == 0) return "Your " + itemName + " expires today!";
+    if (daysUntil < 0) return "Your " + itemName + " has expired!";
+    if (REMINDER_DAYS.contains(daysUntil)) {
+      return "Reminder: your " + itemName + " expires in " + daysUntil + " days!";
+    }
+    return null;
   }
 
   private LocalDate calculateExpiryDate(UserItem userItem) {
     if (userItem.getOpenedDate() != null) {
       LocalDate openedExpiry = userItem.getOpenedDate().plusDays(userItem.getOpenedRule());
       return openedExpiry.isBefore(userItem.getExpirationDate()) ? openedExpiry : userItem.getExpirationDate();
-    } else {
-      return userItem.getExpirationDate();
     }
+    return userItem.getExpirationDate();
   }
 
   private boolean shouldSendReminder(UserItem userItem) {
-    LocalDateTime lastNotified = userItem.getLastNotifiedAt();
-      if (lastNotified == null) return true;
-      return lastNotified.toLocalDate().isBefore(LocalDate.now());
-    }
+    if (userItem.getLastNotifiedAt() == null) return true;
+    return userItem.getLastNotifiedAt().toLocalDate().isBefore(LocalDate.now());
+  }
 
   private void sendNotification(UserItem userItem, String message) {
-    userItem.getUser().getDeviceTokens().forEach(token ->
-        pushNotificationService.sendToDevice(token.getToken(), "ResQFood Notification", message)
+    List<UserDeviceToken> tokens = userItem.getUser().getDeviceTokens();
+    if (tokens.isEmpty()) return;
+
+    tokens.forEach(token ->
+        pushNotificationService.sendToDevice(token.getToken(), message)
     );
   }
 }
