@@ -51,7 +51,7 @@ public class Item {
   @OneToMany(mappedBy = "item")
   private List<UserItem> userItems = new ArrayList<>();
 
-  protected Item() {}
+  public Item() {}
 
   public Item(String name, Type type) {
     setName(name);
