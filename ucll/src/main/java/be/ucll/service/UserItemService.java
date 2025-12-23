@@ -46,14 +46,32 @@ public class UserItemService {
                     .orElseThrow(() -> new DomainException("UserItem not found: " + dto.id()));
 
                 if (!entity.getUser().getId().equals(user.getId())) {
-                throw new DomainException("Unauthorized update attempt.");
+                    throw new DomainException("Unauthorized update attempt.");
                 }
             } else {
                 entity = new UserItem();
                 entity.setUser(user);
 
-                Item baseItem = itemRepository.findById(dto.itemId())
-                    .orElseThrow(() -> new RuntimeException("Item template not found"));
+                Item baseItem;
+                if (dto.itemId() != null) {
+                    baseItem = itemRepository.findById(dto.itemId())
+                    .orElseThrow(() -> new DomainException("Item template not found"));
+                } else {
+                    baseItem = itemRepository.findByNameContainingIgnoreCase(dto.itemName())
+                        .orElseGet(() -> {
+                            Item newItem = new Item();
+                            newItem.setName(dto.itemName());
+                            if (dto.type() != null) {
+                                try {
+                                    newItem.setType(Item.Type.valueOf(dto.type().toUpperCase()));
+                                } catch (IllegalArgumentException e) {
+                                    throw new DomainException("Invalid category: " + dto.type());
+                                }
+                            }
+                            newItem.setOpenedRule(dto.openedRule() != null ? dto.openedRule() : 3);
+                            return itemRepository.save(newItem);
+                        });
+                }
                 entity.setItem(baseItem);
             }
 
@@ -65,7 +83,7 @@ public class UserItemService {
             return UserItemMapper.toDTO(userItemRepository.save(entity));
         }).toList();
 
-        sendSuccessNotification(user, "Item(s) successfully updated!");
+        sendSuccessNotification(user, "Item(s) successfully saved!");
 
         return results;
     }

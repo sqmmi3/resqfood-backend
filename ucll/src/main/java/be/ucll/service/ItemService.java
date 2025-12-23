@@ -42,7 +42,8 @@ public class ItemService {
         itemRepository.delete(getItemById(id));
     }
 
-    public Item searchItems(String name) {
-        return itemRepository.findByNameContainingIgnoreCase(name);
+    public Item searchItem(String name) {
+        return itemRepository.findByNameContainingIgnoreCase(name)
+            .orElseThrow(() -> new DomainException("Item not found."));
     }
 }

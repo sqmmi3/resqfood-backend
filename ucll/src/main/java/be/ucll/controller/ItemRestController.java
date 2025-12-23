@@ -53,6 +53,6 @@ public class ItemRestController {
 
     @GetMapping("/search")
     public Item searchItems(@RequestParam String name) {
-        return itemService.searchItems(name);
+        return itemService.searchItem(name);
     }
 }

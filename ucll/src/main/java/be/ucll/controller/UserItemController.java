@@ -41,7 +41,7 @@ public class UserItemController {
     }
 
     @PutMapping("/batch")
-    public ResponseEntity<List<UserItemResponseDTO>> updateBatch(@RequestBody List<UserItemResponseDTO> dtos, Authentication authentication) {
+    public ResponseEntity<List<UserItemResponseDTO>> saveBatch(@RequestBody List<UserItemResponseDTO> dtos, Authentication authentication) {
         User currentUser = userService.getUser(authentication.getName());
         List<UserItemResponseDTO> result = userItemService.saveBatch(dtos, currentUser);
         return ResponseEntity.ok(result);
