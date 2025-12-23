@@ -4,17 +4,29 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import be.ucll.dto.UserItemResponseDTO;
 import be.ucll.exception.DomainException;
+import be.ucll.mapper.UserItemMapper;
+import be.ucll.model.Item;
+import be.ucll.model.User;
 import be.ucll.model.UserItem;
+import be.ucll.repository.ItemRepository;
 import be.ucll.repository.UserItemRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserItemService {
+
+    private final PushNotificationService pushNotificationService;
     
     private final UserItemRepository userItemRepository;
 
-    public UserItemService(UserItemRepository userItemRepository) {
+    private final ItemRepository itemRepository;
+
+    public UserItemService(UserItemRepository userItemRepository, ItemRepository itemRepository, PushNotificationService pushNotificationService) {
         this.userItemRepository = userItemRepository;
+        this.itemRepository = itemRepository;
+        this.pushNotificationService = pushNotificationService;
     }
 
     public List<UserItem> getAllItemsFromUsers(String username) {
@@ -23,5 +35,61 @@ public class UserItemService {
         }
 
         return userItemRepository.findByUser_Username(username);
+    }
+
+    @Transactional
+    public List<UserItemResponseDTO> saveBatch(List<UserItemResponseDTO> dtos, User user) {
+        List<UserItemResponseDTO> results = dtos.stream().map(dto -> {
+            UserItem entity;
+            if (dto.id() != null) {
+                entity = userItemRepository.findById(dto.id())
+                    .orElseThrow(() -> new DomainException("UserItem not found: " + dto.id()));
+
+                if (!entity.getUser().getId().equals(user.getId())) {
+                throw new DomainException("Unauthorized update attempt.");
+                }
+            } else {
+                entity = new UserItem();
+                entity.setUser(user);
+
+                Item baseItem = itemRepository.findById(dto.itemId())
+                    .orElseThrow(() -> new RuntimeException("Item template not found"));
+                entity.setItem(baseItem);
+            }
+
+            entity.setExpirationDate(dto.expirationDate());
+            entity.setOpenedDate(dto.openedDate());
+            entity.setOpenedRule(dto.openedRule());
+            entity.setDescription(dto.description());
+
+            return UserItemMapper.toDTO(userItemRepository.save(entity));
+        }).toList();
+
+        sendSuccessNotification(user, "Item(s) successfully updated!");
+
+        return results;
+    }
+
+    private void sendSuccessNotification(User user, String message) {
+        user.getDeviceTokens().forEach(deviceToken -> 
+            pushNotificationService.sendToDevice(
+                deviceToken.getToken(),
+                message
+            )
+        );
+    }
+
+    @Transactional
+    public void deleteUserItem(Long id, User user) {
+        UserItem userItem = userItemRepository.findById(id)
+            .orElseThrow(() -> new DomainException("Item not found with id: " + id));
+        
+        if (!userItem.getUser().getId().equals(user.getId())) {
+            throw new DomainException("You do not have permission to delete this item.");
+        }
+
+        userItemRepository.delete(userItem);
+
+        sendSuccessNotification(user, "Instance of item successfully removed!");
     }
 }
