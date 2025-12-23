@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import be.ucll.exception.DomainException;
 import be.ucll.model.Item;
 import be.ucll.model.User;
 import be.ucll.model.UserItem;
@@ -75,13 +76,15 @@ public class DbInitializer {
         User sqmmi3 = userRepository.findByUsername("sqmmi3")
           .orElseThrow(() -> new RuntimeException("User sqmmi3 not found."));
         
-        Item milk = itemRepository.findByNameContainingIgnoreCase("Milk Everyday");
+        String itemNotFoundMessage = "Item not found.";
 
-        Item bread = itemRepository.findByNameContainingIgnoreCase("Bread Moregrains");
+        Item milk = itemRepository.findByNameContainingIgnoreCase("Milk Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
 
-        Item eggs = itemRepository.findByNameContainingIgnoreCase("Eggs Boni 6x");
+        Item bread = itemRepository.findByNameContainingIgnoreCase("Bread Moregrains").orElseThrow(() -> new DomainException(itemNotFoundMessage));
 
-        Item cheese = itemRepository.findByNameContainingIgnoreCase("Cheese Jong Everyday");
+        Item eggs = itemRepository.findByNameContainingIgnoreCase("Eggs Boni 6x").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        Item cheese = itemRepository.findByNameContainingIgnoreCase("Cheese Jong Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
 
         UserItem sqmmi3milk1 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24), LocalDate.now(), 6);
         UserItem sqmmi3milk2 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24));
