@@ -49,7 +49,7 @@ public class UserItem {
   @Size(min = 0, max = 128, message = "Description cannot be longer than 128 characters.")
   private String description;
 
-  protected UserItem() {}
+  public UserItem() {}
 
   public UserItem(User user, Item item, LocalDate expirationDate) {
     setUser(user);

@@ -4,8 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.AndroidNotification;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 
 @Service
 public class PushNotificationService {
@@ -17,18 +20,30 @@ public class PushNotificationService {
     this.firebaseMessaging = firebaseMessaging;
   }
 
-  public void sendToDevice(String token, String title, String body) {
+  public void sendToDevice(String token, String notificationMessage) {
     try {
-        Message message = Message.builder()
-          .setToken(token)
-          .putData("title", title)
-          .putData("body", body)
-          .build();
+      Notification notification = Notification.builder()
+        .setTitle("ResQFood")
+        .setBody(notificationMessage)
+        .build();
 
-        firebaseMessaging.send(message);
+      Message message = Message.builder()
+        .setToken(token)
+        .setNotification(notification)
+        .setAndroidConfig(AndroidConfig.builder()
+            .setPriority(AndroidConfig.Priority.HIGH)
+            .setNotification(AndroidNotification.builder()
+                .setIcon("ic_notification")
+                .setColor("#4caf50")
+                .setPriority(AndroidNotification.Priority.HIGH)
+                .build())
+            .build())
+        .putData("title", "ResQFood")
+        .putData("body", notificationMessage)
+        .build();
 
-        logger.info("Successfully sent FCM push notification to token {}", token);
-
+      firebaseMessaging.send(message);
+      logger.info("Successfully sent FCM push notification to token {}", token);
     } catch (Exception e) {
         logger.error("Failed to send FCM push notification: ", e);
     }
