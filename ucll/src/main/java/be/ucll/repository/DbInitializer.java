@@ -21,84 +21,85 @@ import be.ucll.model.Item.Type;
 @Profile("dev")
 public class DbInitializer {
 
-  private static final Logger logger = LoggerFactory.getLogger(DbInitializer.class);
-  
-  @Bean
-  public CommandLineRunner initDatabase(
-    UserRepository userRepository,
-    ItemRepository itemRepository,
-    UserItemRepository userItemRepository,
-    PasswordEncoder passwordEncoder
-  ) {
-    return args -> {
-      if (userRepository.count() == 0) {
-        logger.info("Seeding users...");
+    private static final Logger logger = LoggerFactory.getLogger(DbInitializer.class);
 
-        User admin = new User(
-          "admin",
-          "admin@resqfood.com",
-          passwordEncoder.encode("Admin123%")
-        );
+    @Bean
+    public CommandLineRunner initDatabase(
+            UserRepository userRepository,
+            ItemRepository itemRepository,
+            UserItemRepository userItemRepository,
+            PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (userRepository.count() == 0) {
+                logger.info("Seeding users...");
 
-        User testUser = new User(
-          "john_doe",
-          "john.doe@example.com",
-          passwordEncoder.encode("johnDoe123%")
-        );
+                User admin = new User(
+                        "admin",
+                        "admin@resqfood.com",
+                        passwordEncoder.encode("Admin123%"));
 
-        User sqmmi3 = new User(
-          "sqmmi3",
-          "sqmmi3@resqfood.com",
-          passwordEncoder.encode("Sqmmi3123%")
-        );
+                User testUser = new User(
+                        "john_doe",
+                        "john.doe@example.com",
+                        passwordEncoder.encode("johnDoe123%"));
 
-        userRepository.saveAll(List.of(admin, testUser, sqmmi3));
+                User sqmmi3 = new User(
+                        "sqmmi3",
+                        "sqmmi3@resqfood.com",
+                        passwordEncoder.encode("Sqmmi3123%"));
 
-        logger.info("Users seeded!");
-      }
+                userRepository.saveAll(List.of(admin, testUser, sqmmi3));
 
-      if (itemRepository.count() == 0) {
-        logger.info("Seeding items...");
+                logger.info("Users seeded!");
+            }
 
-        Item milk = new Item("Milk Everyday", Type.DAIRY);
-        Item bread = new Item("Bread Moregrains", Type.GRAIN);
-        Item eggs = new Item("Eggs Boni 6x", Type.PROTEIN);
-        Item cheese = new Item("Cheese Jong Everyday", Type.DAIRY);
+            if (itemRepository.count() == 0) {
+                logger.info("Seeding items...");
 
-        itemRepository.saveAll(List.of(milk, bread, eggs, cheese));
+                Item milk = new Item("Milk Everyday", Type.DAIRY);
+                Item bread = new Item("Bread Moregrains", Type.GRAIN);
+                Item eggs = new Item("Eggs Boni 6x", Type.PROTEIN);
+                Item cheese = new Item("Cheese Jong Everyday", Type.DAIRY);
 
-        logger.info("Items seeded!");
-      }
+                itemRepository.saveAll(List.of(milk, bread, eggs, cheese));
 
-      if (userItemRepository.count() == 0) {
-        logger.info("Seeding user_items");
+                logger.info("Items seeded!");
+            }
 
-        User sqmmi3 = userRepository.findByUsername("sqmmi3")
-          .orElseThrow(() -> new RuntimeException("User sqmmi3 not found."));
-        
-        String itemNotFoundMessage = "Item not found.";
+            if (userItemRepository.count() == 0) {
+                logger.info("Seeding user_items");
 
-        Item milk = itemRepository.findByNameContainingIgnoreCase("Milk Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+                User sqmmi3 = userRepository.findByUsername("sqmmi3")
+                        .orElseThrow(() -> new RuntimeException("User sqmmi3 not found."));
 
-        Item bread = itemRepository.findByNameContainingIgnoreCase("Bread Moregrains").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+                String itemNotFoundMessage = "Item not found.";
 
-        Item eggs = itemRepository.findByNameContainingIgnoreCase("Eggs Boni 6x").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+                Item milk = itemRepository.findByNameContainingIgnoreCase("Milk Everyday")
+                        .orElseThrow(() -> new DomainException(itemNotFoundMessage));
 
-        Item cheese = itemRepository.findByNameContainingIgnoreCase("Cheese Jong Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+                Item bread = itemRepository.findByNameContainingIgnoreCase("Bread Moregrains")
+                        .orElseThrow(() -> new DomainException(itemNotFoundMessage));
 
-        UserItem sqmmi3milk1 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24), LocalDate.now(), 6);
-        UserItem sqmmi3milk2 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24));
-        UserItem sqmmi3milk3 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(28));
-        UserItem sqmmi3bread1 = new UserItem(sqmmi3, bread, LocalDate.now().plusDays(5), LocalDate.now(), 4);
-        UserItem sqmmi3eggs1 = new UserItem(sqmmi3, eggs, LocalDate.now().plusDays(16));
-        UserItem sqmmi3cheese1 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(48));
-        UserItem sqmmi3cheese2 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(64));
-        UserItem sqmmi3cheese3 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(32), LocalDate.now(), 8);
+                Item eggs = itemRepository.findByNameContainingIgnoreCase("Eggs Boni 6x")
+                        .orElseThrow(() -> new DomainException(itemNotFoundMessage));
 
-        userItemRepository.saveAll(List.of(sqmmi3milk1, sqmmi3milk2, sqmmi3milk3, sqmmi3bread1, sqmmi3eggs1, sqmmi3cheese1, sqmmi3cheese2, sqmmi3cheese3));
+                Item cheese = itemRepository.findByNameContainingIgnoreCase("Cheese Jong Everyday")
+                        .orElseThrow(() -> new DomainException(itemNotFoundMessage));
 
-        logger.info("User_Item s seeded!");
-      }
-    };
-  }
+                UserItem sqmmi3milk1 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24), LocalDate.now(), 6);
+                UserItem sqmmi3milk2 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24));
+                UserItem sqmmi3milk3 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(28));
+                UserItem sqmmi3bread1 = new UserItem(sqmmi3, bread, LocalDate.now().plusDays(5), LocalDate.now(), 4);
+                UserItem sqmmi3eggs1 = new UserItem(sqmmi3, eggs, LocalDate.now().plusDays(16));
+                UserItem sqmmi3cheese1 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(48));
+                UserItem sqmmi3cheese2 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(64));
+                UserItem sqmmi3cheese3 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(32), LocalDate.now(), 8);
+
+                userItemRepository.saveAll(List.of(sqmmi3milk1, sqmmi3milk2, sqmmi3milk3, sqmmi3bread1, sqmmi3eggs1,
+                        sqmmi3cheese1, sqmmi3cheese2, sqmmi3cheese3));
+
+                logger.info("User_Item s seeded!");
+            }
+        };
+    }
 }

@@ -165,10 +165,10 @@ public class ItemServiceTest {
         // Given
         String query = "app";
         Item match = new Item("Apple", validType);
-        when(itemRepository.findByNameContainingIgnoreCase(query)).thenReturn(match);
+        when(itemRepository.findByNameContainingIgnoreCase(query)).thenReturn(Optional.of(match));
 
         // When
-        Item result = itemService.searchItems(query);
+        Item result = itemService.searchItem(query);
 
         // Then
         assertThat(result).isEqualTo(match);
