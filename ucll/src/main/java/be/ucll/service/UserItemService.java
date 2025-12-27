@@ -14,19 +14,22 @@ import be.ucll.repository.ItemRepository;
 import be.ucll.repository.UserItemRepository;
 import jakarta.transaction.Transactional;
 
+// TODO: Item name in notification?
+
 @Service
 public class UserItemService {
 
-    private final PushNotificationService pushNotificationService;
-    
+    private final NotificationService notificationService;
+
     private final UserItemRepository userItemRepository;
 
     private final ItemRepository itemRepository;
 
-    public UserItemService(UserItemRepository userItemRepository, ItemRepository itemRepository, PushNotificationService pushNotificationService) {
+    public UserItemService(UserItemRepository userItemRepository, ItemRepository itemRepository,
+            NotificationService notificationService) {
         this.userItemRepository = userItemRepository;
         this.itemRepository = itemRepository;
-        this.pushNotificationService = pushNotificationService;
+        this.notificationService = notificationService;
     }
 
     public List<UserItem> getAllItemsFromUsers(String username) {
@@ -43,7 +46,7 @@ public class UserItemService {
             UserItem entity;
             if (dto.id() != null) {
                 entity = userItemRepository.findById(dto.id())
-                    .orElseThrow(() -> new DomainException("UserItem not found: " + dto.id()));
+                        .orElseThrow(() -> new DomainException("UserItem not found: " + dto.id()));
 
                 if (!entity.getUser().getId().equals(user.getId())) {
                     throw new DomainException("Unauthorized update attempt.");
@@ -55,22 +58,22 @@ public class UserItemService {
                 Item baseItem;
                 if (dto.itemId() != null) {
                     baseItem = itemRepository.findById(dto.itemId())
-                    .orElseThrow(() -> new DomainException("Item template not found"));
+                            .orElseThrow(() -> new DomainException("Item template not found"));
                 } else {
                     baseItem = itemRepository.findByNameContainingIgnoreCase(dto.itemName())
-                        .orElseGet(() -> {
-                            Item newItem = new Item();
-                            newItem.setName(dto.itemName());
-                            if (dto.type() != null) {
-                                try {
-                                    newItem.setType(Item.Type.valueOf(dto.type().toUpperCase()));
-                                } catch (IllegalArgumentException e) {
-                                    throw new DomainException("Invalid category: " + dto.type());
+                            .orElseGet(() -> {
+                                Item newItem = new Item();
+                                newItem.setName(dto.itemName());
+                                if (dto.type() != null) {
+                                    try {
+                                        newItem.setType(Item.Type.valueOf(dto.type().toUpperCase()));
+                                    } catch (IllegalArgumentException e) {
+                                        throw new DomainException("Invalid category: " + dto.type());
+                                    }
                                 }
-                            }
-                            newItem.setOpenedRule(dto.openedRule() != null ? dto.openedRule() : 3);
-                            return itemRepository.save(newItem);
-                        });
+                                newItem.setOpenedRule(dto.openedRule() != null ? dto.openedRule() : 3);
+                                return itemRepository.save(newItem);
+                            });
                 }
                 entity.setItem(baseItem);
             }
@@ -89,19 +92,19 @@ public class UserItemService {
     }
 
     private void sendSuccessNotification(User user, String message) {
-        user.getDeviceTokens().forEach(deviceToken -> 
-            pushNotificationService.sendToDevice(
-                deviceToken.getToken(),
-                message
-            )
-        );
+        // Use NotificationService for persistance and Firebase push notification
+        notificationService.createAndSendNotification(
+                user,
+                "Inventory Update",
+                message,
+                null);
     }
 
     @Transactional
     public void deleteUserItem(Long id, User user) {
         UserItem userItem = userItemRepository.findById(id)
-            .orElseThrow(() -> new DomainException("Item not found with id: " + id));
-        
+                .orElseThrow(() -> new DomainException("Item not found with id: " + id));
+
         if (!userItem.getUser().getId().equals(user.getId())) {
             throw new DomainException("You do not have permission to delete this item.");
         }
