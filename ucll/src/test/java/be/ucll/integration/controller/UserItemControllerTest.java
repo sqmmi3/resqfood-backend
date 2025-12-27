@@ -1,4 +1,4 @@
-package be.ucll.integration;
+package be.ucll.integration.controller;
 
 import be.ucll.dto.UserItemResponseDTO;
 import be.ucll.model.Item;

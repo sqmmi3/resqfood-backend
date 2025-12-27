@@ -1,4 +1,4 @@
-package be.ucll.integration;
+package be.ucll.integration.controller;
 
 import be.ucll.model.User;
 import be.ucll.repository.UserRepository;
