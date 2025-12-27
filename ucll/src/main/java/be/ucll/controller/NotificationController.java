@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.ucll.dto.NotificationDTO;
 import be.ucll.model.Notification;
 import be.ucll.service.NotificationService;
 
@@ -23,8 +24,18 @@ public class NotificationController {
     }
 
     @GetMapping
-    public List<Notification> getMyNotifications(Authentication auth) {
-        return notificationService.getUserNotifications(auth.getName());
+    public List<NotificationDTO> getMyNotifications(Authentication auth) {
+        List<Notification> notifications = notificationService.getUserNotifications(auth.getName());
+
+        return notifications.stream()
+                .map(n -> new NotificationDTO(
+                        n.getId(),
+                        n.getTitle(),
+                        n.getMessage(),
+                        n.getTimestamp(),
+                        n.isIsRead(),
+                        n.getRelatedItemId()))
+                .toList();
     }
 
     @PutMapping("/{id}/read")
