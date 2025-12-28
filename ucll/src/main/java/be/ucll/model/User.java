@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -58,6 +60,11 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserDeviceToken> deviceTokens = new ArrayList<>();
 
+  @JsonIgnore
+  @ManyToOne
+  @JoinColumn(name = "household_id", nullable = true)
+  private Household household;
+
   protected User() {}
 
   public User(String username, String email, String password) {
@@ -97,6 +104,10 @@ public class User {
     return this.deviceTokens;
   }
 
+  public Household getHousehold() {
+    return this.household;
+  }
+
   // Setters
   public void setUsername(String newUsername) {
     this.username = newUsername;
@@ -108,6 +119,10 @@ public class User {
 
   public void setPassword(String newPassword) {
     this.password = newPassword;
+  }
+
+  public void setHousehold(Household newHousehold) {
+    this.household = newHousehold;
   }
 
   // Helper Methods
@@ -136,6 +151,6 @@ public class User {
 
   @Override
   public String toString() {
-    return "User{id=" + this.id + ", username=" + this.username + ", email=" + this.email + ", items=" + this.getItems() + "}";
+    return "User{id=" + this.id + ", username=" + this.username + ", household=" + (this.household != null ? household.getInviteCode() : "none") +  ", email=" + this.email + ", items=" + this.getItems() + "}";
   }    
 }

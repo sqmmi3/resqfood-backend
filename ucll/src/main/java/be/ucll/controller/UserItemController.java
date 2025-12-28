@@ -34,7 +34,7 @@ public class UserItemController {
     @GetMapping
     public List<UserItemResponseDTO> getAllItemsFromUser(Authentication authentication) {
         User currentUser = userService.getUser(authentication.getName());
-        return currentUser.getUserItems()
+        return userItemService.getInventoryForUser(currentUser)
             .stream()
             .map(UserItemMapper::toDTO)
             .toList();
