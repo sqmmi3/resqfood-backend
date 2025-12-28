@@ -47,4 +47,16 @@ public class NotificationService {
         notification.setIsRead(true);
         notificationRepository.save(notification);
     }
+
+    @Transactional
+    public void deleteNotification(Long id, String username) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new DomainException("Notification not found with id: " + id));
+
+        if (!notification.getUser().getUsername().equals(username)) {
+            throw new DomainException("You do not have permission to delete this notification");
+        }
+
+        notificationRepository.delete(notification);
+    }
 }
