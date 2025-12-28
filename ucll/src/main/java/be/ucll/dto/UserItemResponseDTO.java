@@ -10,5 +10,6 @@ public record UserItemResponseDTO (
   LocalDate expirationDate,
   LocalDate openedDate,
   Integer openedRule,
-  String description
+  String description,
+  String addedBy
 ) {}

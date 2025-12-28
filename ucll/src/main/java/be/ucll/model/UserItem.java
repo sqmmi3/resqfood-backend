@@ -69,6 +69,15 @@ public class UserItem {
     setDescription(null);
   }
 
+  public UserItem(User user, Item item, LocalDate expirationDate, Integer openedRule) {
+    setUser(user);
+    setItem(item);
+    setExpirationDate(expirationDate);
+    setOpenedDate(null);
+    setOpenedRule(openedRule);
+    setDescription(null);
+  }
+
   public UserItem(User user, Item item, LocalDate expirationDate, LocalDate openedDate, Integer openedRule) {
     setUser(user);
     setItem(item);

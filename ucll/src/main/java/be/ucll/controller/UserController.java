@@ -19,10 +19,10 @@ import be.ucll.service.UserService;
 
 @RestController
 @RequestMapping("/users")
-public class UserRestController {
+public class UserController {
     private final UserService userService;
 
-    public UserRestController(UserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -35,7 +35,9 @@ public class UserRestController {
     public ResponseEntity<UserDTO> registerUser(@RequestBody User user) {
         User savedUser = userService.registerUser(user);
 
-        UserDTO userDTO = new UserDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
+        String inviteCode = (savedUser.getHousehold() != null) ? savedUser.getHousehold().getInviteCode() : null;
+
+        UserDTO userDTO = new UserDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), inviteCode);
 
         return ResponseEntity.status(201).body(userDTO);
     }
