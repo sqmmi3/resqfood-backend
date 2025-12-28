@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "jwt.secret=Y8r3mP9wQ2tF6sV1xB7eH4kN0uJ5cR8Z",
         "jwt.expiration=3600000"
 })
-public class UserRestControllerIntegrationTest {
+class UserRestControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

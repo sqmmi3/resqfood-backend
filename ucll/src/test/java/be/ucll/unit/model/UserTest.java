@@ -3,6 +3,8 @@ package be.ucll.unit.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +22,7 @@ import jakarta.validation.ValidatorFactory;
 import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
-public class UserTest {
+class UserTest {
 
     // Global given
     private final String validUsername = "John_Doe123";
@@ -186,49 +188,11 @@ public class UserTest {
         assertThat(violations).anyMatch(v -> v.getMessage().contains("Email should be valid."));
     }
 
-    @Test
-    void validateUser_password_noUpper() {
+    @ParameterizedTest
+    @ValueSource(strings = {"password123!", "PASSWORD123!", "Password!", "Password1"})
+    void validateUser_password_invalid(String invalidPassword) {
         // Given
-        User user = new User(validUsername, validEmail, "password123!");
-
-        // When
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-
-        // Then
-        assertThat(violations).anyMatch(v -> v.getMessage().contains(
-                "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character."));
-    }
-
-    @Test
-    void validateUser_password_noLower() {
-        // Given
-        User user = new User(validUsername, validEmail, "PASSWORD123!");
-
-        // When
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-
-        // Then
-        assertThat(violations).anyMatch(v -> v.getMessage().contains(
-                "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character."));
-    }
-
-    @Test
-    void validateUser_password_noDigit() {
-        // Given
-        User user = new User(validUsername, validEmail, "Password!");
-
-        // When
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-
-        // Then
-        assertThat(violations).anyMatch(v -> v.getMessage().contains(
-                "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character."));
-    }
-
-    @Test
-    void validateUser_password_noSpecial() {
-        // Given
-        User user = new User(validUsername, validEmail, "Password1");
+        User user = new User(validUsername, validEmail, invalidPassword);
 
         // When
         Set<ConstraintViolation<User>> violations = validator.validate(user);

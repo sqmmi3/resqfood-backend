@@ -11,7 +11,7 @@ import be.ucll.mapper.UserItemMapper;
 import be.ucll.model.Item;
 import be.ucll.model.UserItem;
 
-public class UserItemMapperTest {
+class UserItemMapperTest {
 
     @Test
     void toDTO_happyPath() {
