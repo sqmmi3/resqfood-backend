@@ -19,7 +19,7 @@ import be.ucll.repository.UserRepository;
 import be.ucll.service.ResQUserDetailsService;
 
 @ExtendWith(MockitoExtension.class)
-public class ResQUserDetailsServiceTest {
+class ResQUserDetailsServiceTest {
 
     // Global given
     private final String validUsername = "TestUser";

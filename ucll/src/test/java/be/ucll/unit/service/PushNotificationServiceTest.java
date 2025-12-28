@@ -21,7 +21,7 @@ import com.google.firebase.messaging.Message;
 import be.ucll.service.PushNotificationService;
 
 @ExtendWith(MockitoExtension.class)
-public class PushNotificationServiceTest {
+class PushNotificationServiceTest {
 
     // Global given
     private final String validToken = "device-token-123";

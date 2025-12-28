@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserItemServiceTest {
+class UserItemServiceTest {
 
     // Global given
     private final String validUsername = "TestUser";
@@ -118,7 +118,7 @@ public class UserItemServiceTest {
         assertThat(result.get(0).id()).isEqualTo(validUserItemId);
 
         // Verify if notif is sent
-        verify(pushNotificationService).sendToDevice(eq("token123"), contains("Item(s) successfully updated!"));
+        verify(pushNotificationService).sendToDevice(eq("token123"), contains("Item(s) successfully saved!"));
     }
 
     @Test
@@ -175,9 +175,12 @@ public class UserItemServiceTest {
 
         when(userItemRepository.findById(999L)).thenReturn(Optional.empty());
 
+        List<UserItemResponseDTO> batch = List.of(updateDto);
+
         // When / Then
-        assertThatThrownBy(() -> userItemService.saveBatch(List.of(updateDto), user))
-                .isInstanceOf(DomainException.class).hasMessageContaining("UserItem not found");
+        assertThatThrownBy(() -> userItemService.saveBatch(batch, user))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("UserItem not found");
     }
 
     @Test
@@ -201,8 +204,10 @@ public class UserItemServiceTest {
 
         when(userItemRepository.findById(validUserItemId)).thenReturn(Optional.of(exisitingItem));
 
+        List<UserItemResponseDTO> batch = List.of(updateDto);
+
         // When / Then
-        assertThatThrownBy(() -> userItemService.saveBatch(List.of(updateDto), currentUser))
+        assertThatThrownBy(() -> userItemService.saveBatch(batch, currentUser))
                 .isInstanceOf(DomainException.class)
                 .hasMessage("Unauthorized update attempt.");
     }

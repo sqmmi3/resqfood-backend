@@ -12,7 +12,7 @@ import be.ucll.model.User;
 import be.ucll.model.UserDeviceToken;
 
 @ExtendWith(MockitoExtension.class)
-public class UserDeviceTokenTest {
+class UserDeviceTokenTest {
 
     // Global given
     private final String validToken = "fcm-token-12345";
