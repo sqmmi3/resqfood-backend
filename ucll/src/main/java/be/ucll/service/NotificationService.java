@@ -64,4 +64,8 @@ public class NotificationService {
     public void markAllAsRead(String username) {
         notificationRepository.markAllAsRead(username);
     }
+
+    public long getUnreadCount(String username) {
+        return notificationRepository.countByUser_UsernameAndIsReadFalse(username);
+    }
 }
