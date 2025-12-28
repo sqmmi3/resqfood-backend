@@ -50,4 +50,10 @@ public class NotificationController {
         notificationService.deleteNotification(id, auth.getName());
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/read-all")
+    public ResponseEntity<Void> markAllAsRead(Authentication auth) {
+        notificationService.markAllAsRead(auth.getName());
+        return ResponseEntity.ok().build();
+    }
 }
