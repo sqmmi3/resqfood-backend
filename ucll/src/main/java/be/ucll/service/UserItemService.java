@@ -86,18 +86,27 @@ public class UserItemService {
             return UserItemMapper.toDTO(userItemRepository.save(entity));
         }).toList();
 
-        sendSuccessNotification(user, "Item(s) successfully saved!");
+        if (!results.isEmpty()) {
+            // If batch is 1 item we link id to Notification
+            Long relatedItemId = (results.size() == 1) ? results.get(0).id() : null;
+
+            String message = (results.size() == 1)
+                    ? "Item '" + results.get(0).itemName() + "' succesfully saved!"
+                    : results.size() + " items succesfully saved!";
+
+            sendSuccessNotification(user, message, relatedItemId);
+        }
 
         return results;
     }
 
-    private void sendSuccessNotification(User user, String message) {
+    private void sendSuccessNotification(User user, String message, Long relatedItemId) {
         // Use NotificationService for persistance and Firebase push notification
         notificationService.createAndSendNotification(
                 user,
                 "Inventory Update",
                 message,
-                null);
+                relatedItemId);
     }
 
     @Transactional
@@ -111,6 +120,6 @@ public class UserItemService {
 
         userItemRepository.delete(userItem);
 
-        sendSuccessNotification(user, "Instance of item successfully removed!");
+        sendSuccessNotification(user, "Instance of item successfully removed!", null);
     }
 }
