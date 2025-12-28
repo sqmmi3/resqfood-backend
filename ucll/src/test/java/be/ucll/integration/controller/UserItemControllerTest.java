@@ -99,7 +99,9 @@ class UserItemControllerTest {
                 LocalDate.now().plusDays(7),
                 null,
                 3,
-                "Description");
+                "Description",
+                testUser.getUsername()
+        );
 
         // When
         mockMvc.perform(put("/user-items/batch")
@@ -130,7 +132,9 @@ class UserItemControllerTest {
                 LocalDate.now().plusDays(5),
                 LocalDate.now(),
                 3,
-                "Updated Description");
+                "Updated Description",
+                testUser.getUsername()
+        );
 
         // When
         mockMvc.perform(put("/user-items/batch")

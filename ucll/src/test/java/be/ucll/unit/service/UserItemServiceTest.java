@@ -57,13 +57,14 @@ class UserItemServiceTest {
     }
 
     @Test
-    void getAllItemsFromUsers_happyPath() {
+    void getInventoryForUser_happyPath() {
         // Given
+        User user = new User(validUsername, "email", "password");
         UserItem ui1 = new UserItem();
         when(userItemRepository.findByUser_Username(validUsername)).thenReturn(List.of(ui1));
 
         // When
-        List<UserItem> result = userItemService.getAllItemsFromUsers(validUsername);
+        List<UserItem> result = userItemService.getInventoryForUser(user);
 
         // Then
         assertThat(result).hasSize(1);
@@ -71,15 +72,11 @@ class UserItemServiceTest {
     }
 
     @Test
-    void getAllItemsFromUsers_unhappyPath() {
+    void getInventoryForUser_unhappyPath() {
         // When / Then
-        assertThatThrownBy(() -> userItemService.getAllItemsFromUsers(null))
+        assertThatThrownBy(() -> userItemService.getInventoryForUser(null))
                 .isInstanceOf(DomainException.class)
-                .hasMessage("Username is needed to retrieve all items");
-
-        assertThatThrownBy(() -> userItemService.getAllItemsFromUsers(" "))
-                .isInstanceOf(DomainException.class)
-                .hasMessage("Username is needed to retrieve all items");
+                .hasMessage("User is needed to retrieve all items.");
     }
 
     @Test
@@ -101,7 +98,9 @@ class UserItemServiceTest {
                 LocalDate.now().plusDays(5),
                 LocalDate.now(),
                 3,
-                "Desc");
+                "Desc",
+                user.getUsername()
+            );
 
         when(itemRepository.findById(validItemId)).thenReturn(Optional.of(item));
         when(userItemRepository.save(any(UserItem.class))).thenAnswer(i -> {
@@ -141,8 +140,8 @@ class UserItemServiceTest {
                 LocalDate.now().plusDays(10),
                 LocalDate.now(),
                 3,
-                "New Desc"
-
+                "New Desc",
+                user.getUsername()
         );
 
         when(userItemRepository.findById(validUserItemId)).thenReturn(Optional.of(existingItem));
@@ -171,7 +170,9 @@ class UserItemServiceTest {
                 LocalDate.now().plusDays(5),
                 LocalDate.now(),
                 3,
-                "Desc");
+                "Desc",
+                user.getUsername()
+            );
 
         when(userItemRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -200,7 +201,9 @@ class UserItemServiceTest {
                 LocalDate.now().plusDays(5),
                 LocalDate.now(),
                 3,
-                "Desc");
+                "Desc",
+                otherUser.getUsername()
+            );
 
         when(userItemRepository.findById(validUserItemId)).thenReturn(Optional.of(exisitingItem));
 

@@ -30,6 +30,10 @@ public class UserItemService {
     }
 
     public List<UserItem> getInventoryForUser(User user) {
+        if (user == null) {
+            throw new DomainException("User is needed to retrieve all items.");
+        }
+
         if (user.getHousehold() != null) {
             return userItemRepository.findByUser_Household_Id(user.getHousehold().getId());
         }
@@ -108,11 +112,9 @@ private void sendSuccessNotification(User user, String message) {
             .orElseThrow(() -> new DomainException("Item not found with id: " + id));
 
         boolean isOwner = userItem.getUser().getId().equals(user.getId());
-        System.out.println(isOwner);
         boolean isSameHousehold = user.getHousehold() != null &&
                                   userItem.getUser().getHousehold() != null &&
                                   user.getHousehold().getId().equals(userItem.getUser().getHousehold().getId());
-        System.out.println(isSameHousehold);
 
         if (!isOwner && !isSameHousehold) {
             throw new DomainException("You do not have permission to delete this item.");
