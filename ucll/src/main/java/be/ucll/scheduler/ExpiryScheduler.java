@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import be.ucll.model.UserDeviceToken;
 import be.ucll.model.UserItem;
 import be.ucll.repository.UserItemRepository;
 import be.ucll.service.NotificationService;

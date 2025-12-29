@@ -1,5 +1,6 @@
 package be.ucll.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -12,9 +13,8 @@ import be.ucll.model.User;
 import be.ucll.model.UserItem;
 import be.ucll.repository.ItemRepository;
 import be.ucll.repository.UserItemRepository;
+import be.ucll.repository.UserRepository;
 import jakarta.transaction.Transactional;
-
-// TODO: Item name in notification?
 
 @Service
 public class UserItemService {
@@ -25,11 +25,14 @@ public class UserItemService {
 
     private final ItemRepository itemRepository;
 
+    private final UserRepository userRepository;
+
     public UserItemService(UserItemRepository userItemRepository, ItemRepository itemRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService, UserRepository userRepository) {
         this.userItemRepository = userItemRepository;
         this.itemRepository = itemRepository;
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     public List<UserItem> getInventoryForUser(User user) {
@@ -91,12 +94,11 @@ public class UserItemService {
         }).toList();
 
         if (!results.isEmpty()) {
-            // If batch is 1 item we link id to Notification
             Long relatedItemId = (results.size() == 1) ? results.get(0).id() : null;
 
             String message = (results.size() == 1)
-                    ? "Item '" + results.get(0).itemName() + "' succesfully saved!"
-                    : results.size() + " items succesfully saved!";
+                    ? "Item '" + results.get(0).itemName() + "' successfully saved!"
+                    : results.size() + " items successfully saved!";
 
             sendSuccessNotification(user, message, relatedItemId);
         }
@@ -105,14 +107,12 @@ public class UserItemService {
     }
 
     private void sendSuccessNotification(User user, String message, Long relatedItemId) {
-        // Use NotificationService for persistance and Firebase push notification
         notificationService.createAndSendNotification(
                 user,
                 "Inventory Update",
                 message,
                 relatedItemId);
     }
-}
 
     @Transactional
     public void deleteUserItem(Long id, User user) {
@@ -126,6 +126,12 @@ public class UserItemService {
 
         if (!isOwner && !isSameHousehold) {
             throw new DomainException("You do not have permission to delete this item.");
+        }
+
+        if (userItem.getExpirationDate().isAfter(LocalDate.now()) || 
+            userItem.getExpirationDate().isEqual(LocalDate.now())) {
+            user.incrementRescued();
+            userRepository.save(user);
         }
         
         userItemRepository.delete(userItem);

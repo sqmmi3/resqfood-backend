@@ -2,6 +2,8 @@ package be.ucll.unit.scheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +24,7 @@ import be.ucll.model.UserDeviceToken;
 import be.ucll.model.UserItem;
 import be.ucll.repository.UserItemRepository;
 import be.ucll.scheduler.ExpiryScheduler;
+import be.ucll.service.NotificationService;
 import be.ucll.service.PushNotificationService;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +35,9 @@ class ExpirySchedulerTest {
 
     @Mock
     private PushNotificationService pushNotificationService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private ExpiryScheduler expiryScheduler;
@@ -51,13 +57,19 @@ class ExpirySchedulerTest {
     void checkExpiries_expiresToday() {
         // Given
         UserItem item = createTestItem("Banana", LocalDate.now());
+        User user = item.getUser();
         when(userItemRepository.findPotentialExpiries(any())).thenReturn(List.of(item));
 
         // When
         expiryScheduler.checkExpiries();
 
         // Then
-        verify(pushNotificationService).sendToDevice("token-123", "Your Banana expires today!");
+        verify(notificationService).createAndSendNotification(
+            eq(user), 
+            eq("Expiry Alert"),
+            contains("Your Banana expires today!"), 
+            eq(item.getId())
+        );
         assertThat(item.getLastNotifiedAt()).isNotNull();
     }
 
@@ -65,13 +77,19 @@ class ExpirySchedulerTest {
     void checkExpiries_reminderDay() {
         // Given
         UserItem item = createTestItem("Milk", LocalDate.now().plusDays(3));
+        User user = item.getUser();
         when(userItemRepository.findPotentialExpiries(any())).thenReturn(List.of(item));
 
         // When
         expiryScheduler.checkExpiries();
 
         // Then
-        verify(pushNotificationService).sendToDevice("token-123", "Reminder: your Milk expires in 3 days!");
+        verify(notificationService).createAndSendNotification(
+            eq(user), 
+            eq("Expiry Alert"),
+            contains("your Milk expires in 3 days!"), 
+            eq(item.getId())
+        );
     }
 
     @Test
@@ -107,7 +125,7 @@ class ExpirySchedulerTest {
     void checkExpiries_openedLogic_overrides() {
         // Given
         UserItem item = createTestItem("Orange Juice", LocalDate.now().plusDays(10));
-
+        User user = item.getUser();
         item.setOpenedDate(LocalDate.now());
         item.setOpenedRule(3);
 
@@ -117,21 +135,31 @@ class ExpirySchedulerTest {
         expiryScheduler.checkExpiries();
 
         // Then
-        verify(pushNotificationService).sendToDevice("token-123",
-                "Reminder: your Orange Juice expires in 3 days!");
+        verify(notificationService).createAndSendNotification(
+            eq(user), 
+            eq("Expiry Alert"),
+            contains("your Orange Juice expires in 3 days!"), 
+            eq(item.getId())
+        );
     }
 
     @Test
     void checkExpiries_alreadyExpired() {
         // Given
         UserItem item = createTestItem("Bread", LocalDate.now().minusDays(1));
+        User user = item.getUser();
         when(userItemRepository.findPotentialExpiries(any())).thenReturn(List.of(item));
 
         // When
         expiryScheduler.checkExpiries();
 
         // Then
-        verify(pushNotificationService).sendToDevice("token-123", "Your Bread has expired!");
+        verify(notificationService).createAndSendNotification(
+            eq(user), 
+            eq("Expiry Alert"),
+            contains("Your Bread has expired!"), 
+            eq(item.getId())
+        );
     }
 
     @Test

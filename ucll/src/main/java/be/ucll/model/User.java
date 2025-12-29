@@ -1,5 +1,6 @@
 package be.ucll.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -65,6 +67,21 @@ public class User {
   @JoinColumn(name = "household_id", nullable = true)
   private Household household;
 
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  @Column(name = "items_rescued", nullable = false)
+  private int itemsRescued = 0;
+
+  public void incrementRescued() {
+    this.itemsRescued++;
+  }
+
+  @PrePersist
+  protected void onCreate() {
+    this.createdAt = LocalDateTime.now();
+  }
+
   protected User() {}
 
   public User(String username, String email, String password) {
@@ -106,6 +123,14 @@ public class User {
 
   public Household getHousehold() {
     return this.household;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return this.createdAt;
+  }
+
+  public int getItemsRescued() {
+    return this.itemsRescued;
   }
 
   // Setters

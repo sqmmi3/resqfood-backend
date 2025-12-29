@@ -1,6 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS resqfood;
 SET search_path TO resqfood;
 
+DROP TABLE IF EXISTS notifications CASCADE;
 DROP TABLE IF EXISTS users_items CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS items CASCADE;
@@ -21,9 +22,22 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(72) NOT NULL,
     household_id BIGINT REFERENCES households(id) ON DELETE SET NULL,
+    items_rescued INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE notifications (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255),
+    message VARCHAR(255),
+    related_item_id BIGINT,
+    timestamp TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 
 CREATE TABLE items (
     id BIGSERIAL PRIMARY KEY,

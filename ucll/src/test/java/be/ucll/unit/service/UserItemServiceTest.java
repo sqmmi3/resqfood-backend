@@ -18,12 +18,15 @@ import be.ucll.model.UserDeviceToken;
 import be.ucll.model.UserItem;
 import be.ucll.repository.ItemRepository;
 import be.ucll.repository.UserItemRepository;
+import be.ucll.repository.UserRepository;
+import be.ucll.service.NotificationService;
 import be.ucll.service.PushNotificationService;
 import be.ucll.service.UserItemService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -45,6 +48,12 @@ class UserItemServiceTest {
 
     @Mock
     private PushNotificationService pushNotificationService;
+
+    @Mock
+    private NotificationService notificationService;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserItemService userItemService;
@@ -117,7 +126,12 @@ class UserItemServiceTest {
         assertThat(result.get(0).id()).isEqualTo(validUserItemId);
 
         // Verify if notif is sent
-        verify(pushNotificationService).sendToDevice(eq("token123"), contains("Item(s) successfully saved!"));
+        verify(notificationService).createAndSendNotification(
+            eq(user), 
+            eq("Inventory Update"), 
+            contains("Item 'Banana' successfully saved!"), 
+            any()
+        );
     }
 
     @Test
@@ -154,6 +168,7 @@ class UserItemServiceTest {
         assertThat(result).hasSize(1);
         verify(userItemRepository).findById(validUserItemId);
         verify(userItemRepository).save(existingItem);
+        verify(notificationService).createAndSendNotification(eq(user), anyString(), anyString(), any());
         // Check if it was updated
         assertThat(existingItem.getDescription()).isEqualTo("New Desc");
     }
@@ -220,10 +235,9 @@ class UserItemServiceTest {
         // Given
         User user = createMockUser(validUserId);
 
-        when(user.getDeviceTokens()).thenReturn(List.of());
-
         UserItem userItem = new UserItem();
         userItem.setUser(user);
+        userItem.setExpirationDate(LocalDate.now().plusDays(5));
 
         when(userItemRepository.findById(validUserItemId)).thenReturn(Optional.of(userItem));
 

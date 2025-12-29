@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.ucll.dto.HouseholdDetailsDTO;
 import be.ucll.dto.HouseholdResponseDTO;
 import be.ucll.model.Household;
 import be.ucll.model.User;
@@ -63,5 +64,23 @@ public class HouseholdController {
   @GetMapping
   public List<Household> getAllHouseholds() {
     return householdService.getAllUsersFromHousehold();
+  }
+
+  @GetMapping("/my-household")
+  public ResponseEntity<HouseholdDetailsDTO> getMyHouseholdDetails(Authentication authentication) {
+    User user = userService.getUser(authentication.getName());
+    if (user.getHousehold() == null) {
+      return ResponseEntity.notFound().build();
+    }
+
+    Household household = user.getHousehold();
+    List<String> memberNames = household.getMembers().stream()
+                                        .map(User::getUsername)
+                                        .toList();
+
+    return ResponseEntity.ok(new HouseholdDetailsDTO(
+      household.getInviteCode(),
+      memberNames
+    ));
   }
 }

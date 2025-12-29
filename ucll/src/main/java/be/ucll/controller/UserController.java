@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import be.ucll.dto.UserDTO;
+import be.ucll.dto.UserProfileDTO;
 import be.ucll.model.User;
 import be.ucll.service.UserService;
 
@@ -67,5 +69,12 @@ public class UserController {
     public ResponseEntity<Void> removeItemFromUser(@PathVariable Long userId, @PathVariable Long itemId) {
         userService.removeItemFromUser(userId, itemId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileDTO> getMyProfile(Authentication authentication) {
+        User user = userService.getUser(authentication.getName());
+        UserProfileDTO profile = userService.getUserProfile(user);
+        return ResponseEntity.ok(profile);
     }
 }

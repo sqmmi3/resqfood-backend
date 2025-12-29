@@ -7,6 +7,7 @@ import be.ucll.model.UserItem;
 import be.ucll.repository.ItemRepository;
 import be.ucll.repository.UserItemRepository;
 import be.ucll.repository.UserRepository;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
