@@ -2,7 +2,6 @@ package be.ucll.unit.scheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,7 +25,7 @@ import be.ucll.scheduler.ExpiryScheduler;
 import be.ucll.service.PushNotificationService;
 
 @ExtendWith(MockitoExtension.class)
-public class ExpirySchedulerTest {
+class ExpirySchedulerTest {
 
     @Mock
     private UserItemRepository userItemRepository;
@@ -45,8 +44,7 @@ public class ExpirySchedulerTest {
 
         Item item = new Item(itemName, Item.Type.FRUIT);
 
-        UserItem userItem = new UserItem(user, item, expirationDate);
-        return userItem;
+        return new UserItem(user, item, expirationDate);
     }
 
     @Test
@@ -59,7 +57,7 @@ public class ExpirySchedulerTest {
         expiryScheduler.checkExpiries();
 
         // Then
-        verify(pushNotificationService).sendToDevice(eq("token-123"), eq("Your Banana expires today!"));
+        verify(pushNotificationService).sendToDevice("token-123", "Your Banana expires today!");
         assertThat(item.getLastNotifiedAt()).isNotNull();
     }
 
@@ -73,7 +71,7 @@ public class ExpirySchedulerTest {
         expiryScheduler.checkExpiries();
 
         // Then
-        verify(pushNotificationService).sendToDevice(eq("token-123"), eq("Reminder: your Milk expires in 3 days!"));
+        verify(pushNotificationService).sendToDevice("token-123", "Reminder: your Milk expires in 3 days!");
     }
 
     @Test
@@ -119,8 +117,8 @@ public class ExpirySchedulerTest {
         expiryScheduler.checkExpiries();
 
         // Then
-        verify(pushNotificationService).sendToDevice(eq("token-123"),
-                eq("Reminder: your Orange Juice expires in 3 days!"));
+        verify(pushNotificationService).sendToDevice("token-123",
+                "Reminder: your Orange Juice expires in 3 days!");
     }
 
     @Test
@@ -133,7 +131,7 @@ public class ExpirySchedulerTest {
         expiryScheduler.checkExpiries();
 
         // Then
-        verify(pushNotificationService).sendToDevice(eq("token-123"), eq("Your Bread has expired!"));
+        verify(pushNotificationService).sendToDevice("token-123", "Your Bread has expired!");
     }
 
     @Test

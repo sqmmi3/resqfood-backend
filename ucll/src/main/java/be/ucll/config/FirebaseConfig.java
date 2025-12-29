@@ -22,6 +22,10 @@ public class FirebaseConfig {
 
   @Bean
   public FirebaseApp firebaseApp() {
+    if (!FirebaseApp.getApps().isEmpty()) {
+      return FirebaseApp.getInstance();
+    }
+
     try {
       InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream(serviceAccountPath);
 

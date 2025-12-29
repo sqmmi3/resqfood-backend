@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import be.ucll.exception.DomainException;
+import be.ucll.model.Household;
 import be.ucll.model.Item;
 import be.ucll.model.User;
 import be.ucll.model.UserItem;
@@ -21,85 +22,120 @@ import be.ucll.model.Item.Type;
 @Profile("dev")
 public class DbInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(DbInitializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(DbInitializer.class);
+  
+  @Bean
+  public CommandLineRunner initDatabase(
+    UserRepository userRepository,
+    ItemRepository itemRepository,
+    UserItemRepository userItemRepository,
+    HouseholdRepository householdRepository,
+    PasswordEncoder passwordEncoder
+  ) {
+    return args -> {
+      if (householdRepository.count() == 0) {
+        logger.info("Seeding households...");
 
-    @Bean
-    public CommandLineRunner initDatabase(
-            UserRepository userRepository,
-            ItemRepository itemRepository,
-            UserItemRepository userItemRepository,
-            PasswordEncoder passwordEncoder) {
-        return args -> {
-            if (userRepository.count() == 0) {
-                logger.info("Seeding users...");
+        Household household = new Household("88BB90");
 
-                User admin = new User(
-                        "admin",
-                        "admin@resqfood.com",
-                        passwordEncoder.encode("Admin123%"));
+        householdRepository.save(household);
+      }
 
-                User testUser = new User(
-                        "john_doe",
-                        "john.doe@example.com",
-                        passwordEncoder.encode("johnDoe123%"));
+      if (userRepository.count() == 0) {
 
-                User sqmmi3 = new User(
-                        "sqmmi3",
-                        "sqmmi3@resqfood.com",
-                        passwordEncoder.encode("Sqmmi3123%"));
+        logger.info("Seeding users...");
 
-                userRepository.saveAll(List.of(admin, testUser, sqmmi3));
+        User admin = new User(
+          "admin",
+          "admin@resqfood.com",
+          passwordEncoder.encode("Admin123%")
+        );
 
-                logger.info("Users seeded!");
-            }
+        User testUser = new User(
+          "john_doe",
+          "john.doe@example.com",
+          passwordEncoder.encode("johnDoe123%")
+        );
 
-            if (itemRepository.count() == 0) {
-                logger.info("Seeding items...");
+        User sqmmi3 = new User(
+          "sqmmi3",
+          "sqmmi3@resqfood.com",
+          passwordEncoder.encode("Sqmmi3123%")
+        );
 
-                Item milk = new Item("Milk Everyday", Type.DAIRY);
-                Item bread = new Item("Bread Moregrains", Type.GRAIN);
-                Item eggs = new Item("Eggs Boni 6x", Type.PROTEIN);
-                Item cheese = new Item("Cheese Jong Everyday", Type.DAIRY);
+        Household household = householdRepository.findByInviteCode("88BB90").orElseThrow(() -> new DomainException("Household not found."));
 
-                itemRepository.saveAll(List.of(milk, bread, eggs, cheese));
+        sqmmi3.setHousehold(household);
 
-                logger.info("Items seeded!");
-            }
+        userRepository.saveAll(List.of(admin, testUser, sqmmi3));
 
-            if (userItemRepository.count() == 0) {
-                logger.info("Seeding user_items");
+        logger.info("Users seeded!");
+      }
 
-                User sqmmi3 = userRepository.findByUsername("sqmmi3")
-                        .orElseThrow(() -> new RuntimeException("User sqmmi3 not found."));
+      if (itemRepository.count() == 0) {
+        logger.info("Seeding items...");
 
-                String itemNotFoundMessage = "Item not found.";
+        Item steak = new Item("Steak", Type.PROTEIN);
+        Item mozzarella = new Item("Mozzarella Everyday", Type.DAIRY);
+        Item nutella = new Item("Nutella", Type.PANTRY);
+        Item tuna = new Item("Tuna Everyday", Type.CANNED);
 
-                Item milk = itemRepository.findByNameContainingIgnoreCase("Milk Everyday")
-                        .orElseThrow(() -> new DomainException(itemNotFoundMessage));
+        Item milk = new Item("Milk Everyday", Type.DAIRY);
+        Item bread = new Item("Bread Moregrains", Type.GRAIN);
+        Item eggs = new Item("Eggs Boni 6x", Type.PROTEIN);
+        Item cheese = new Item("Cheese Jong Everyday", Type.DAIRY);
 
-                Item bread = itemRepository.findByNameContainingIgnoreCase("Bread Moregrains")
-                        .orElseThrow(() -> new DomainException(itemNotFoundMessage));
+        itemRepository.saveAll(List.of(milk, bread, eggs, cheese, steak, mozzarella, nutella, tuna));
 
-                Item eggs = itemRepository.findByNameContainingIgnoreCase("Eggs Boni 6x")
-                        .orElseThrow(() -> new DomainException(itemNotFoundMessage));
+        logger.info("Items seeded!");
+      }
 
-                Item cheese = itemRepository.findByNameContainingIgnoreCase("Cheese Jong Everyday")
-                        .orElseThrow(() -> new DomainException(itemNotFoundMessage));
+      if (userItemRepository.count() == 0) {
+        logger.info("Seeding user_items");
 
-                UserItem sqmmi3milk1 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24), LocalDate.now(), 6);
-                UserItem sqmmi3milk2 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24));
-                UserItem sqmmi3milk3 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(28));
-                UserItem sqmmi3bread1 = new UserItem(sqmmi3, bread, LocalDate.now().plusDays(5), LocalDate.now(), 4);
-                UserItem sqmmi3eggs1 = new UserItem(sqmmi3, eggs, LocalDate.now().plusDays(16));
-                UserItem sqmmi3cheese1 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(48));
-                UserItem sqmmi3cheese2 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(64));
-                UserItem sqmmi3cheese3 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(32), LocalDate.now(), 8);
+        User sqmmi3 = userRepository.findByUsername("sqmmi3")
+          .orElseThrow(() -> new RuntimeException("User sqmmi3 not found."));
 
-                userItemRepository.saveAll(List.of(sqmmi3milk1, sqmmi3milk2, sqmmi3milk3, sqmmi3bread1, sqmmi3eggs1,
-                        sqmmi3cheese1, sqmmi3cheese2, sqmmi3cheese3));
+        User testUser = userRepository.findByUsername("john_doe")
+          .orElseThrow(() -> new RuntimeException("User john_doe not found."));
+        
+        String itemNotFoundMessage = "Item not found.";
 
-                logger.info("User_Item s seeded!");
-            }
-        };
-    }
+        Item milk = itemRepository.findByNameContainingIgnoreCase("Milk Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        Item bread = itemRepository.findByNameContainingIgnoreCase("Bread Moregrains").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        Item eggs = itemRepository.findByNameContainingIgnoreCase("Eggs Boni 6x").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        Item cheese = itemRepository.findByNameContainingIgnoreCase("Cheese Jong Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        Item steak = itemRepository.findByNameContainingIgnoreCase("Steak").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        Item mozzarella = itemRepository.findByNameContainingIgnoreCase("Mozzarella Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        Item nutella = itemRepository.findByNameContainingIgnoreCase("Nutella").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        Item tuna = itemRepository.findByNameContainingIgnoreCase("Tuna Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
+
+        UserItem sqmmi3milk1 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24), LocalDate.now(), 6);
+        UserItem sqmmi3milk2 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24));
+        UserItem sqmmi3milk3 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(28));
+        UserItem sqmmi3bread1 = new UserItem(sqmmi3, bread, LocalDate.now().plusDays(5), LocalDate.now(), 4);
+        UserItem sqmmi3eggs1 = new UserItem(sqmmi3, eggs, LocalDate.now().plusDays(16));
+        UserItem sqmmi3cheese1 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(48));
+        UserItem sqmmi3cheese2 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(64));
+        UserItem sqmmi3cheese3 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(32), LocalDate.now(), 8);
+        UserItem johnsteak1 = new UserItem(testUser, steak, LocalDate.now().plusDays(6), 2);
+        UserItem johnsteak2 = new UserItem(testUser, steak, LocalDate.now().plusDays(7), 2);
+        UserItem johnmozzarella1 = new UserItem(testUser, mozzarella, LocalDate.now().plusDays(24));
+        UserItem johnmozzarella2 = new UserItem(testUser, mozzarella, LocalDate.now().plusDays(24));
+        UserItem johnnutella1 = new UserItem(testUser, nutella, LocalDate.now().plusDays(467), 93);
+        UserItem johntuna1 = new UserItem(testUser, tuna, LocalDate.now().plusDays(467));
+
+        userItemRepository.saveAll(List.of(sqmmi3milk1, sqmmi3milk2, sqmmi3milk3, sqmmi3bread1, sqmmi3eggs1, sqmmi3cheese1, sqmmi3cheese2, sqmmi3cheese3, johnsteak1, johnsteak2, johnmozzarella1, johnmozzarella2, johnnutella1, johntuna1));
+
+        logger.info("User_Item s seeded!");
+      }
+    };
+  }
 }

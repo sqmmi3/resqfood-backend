@@ -9,16 +9,19 @@ import org.junit.jupiter.api.Test;
 import be.ucll.dto.UserItemResponseDTO;
 import be.ucll.mapper.UserItemMapper;
 import be.ucll.model.Item;
+import be.ucll.model.User;
 import be.ucll.model.UserItem;
 
-public class UserItemMapperTest {
+class UserItemMapperTest {
 
     @Test
     void toDTO_happyPath() {
         // Given
+        User user = new User("testuser", "email@test.com", "passWord123%");
         Item item = new Item("Banana", Item.Type.FRUIT);
 
         UserItem userItem = new UserItem();
+        userItem.setUser(user);
         userItem.setId(100L);
         userItem.setItem(item);
         userItem.setExpirationDate(LocalDate.now().plusDays(5));

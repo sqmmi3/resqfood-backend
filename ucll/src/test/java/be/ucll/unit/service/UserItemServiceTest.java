@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserItemServiceTest {
+class UserItemServiceTest {
 
     // Global given
     private final String validUsername = "TestUser";
@@ -57,13 +57,14 @@ public class UserItemServiceTest {
     }
 
     @Test
-    void getAllItemsFromUsers_happyPath() {
+    void getInventoryForUser_happyPath() {
         // Given
+        User user = new User(validUsername, "email", "password");
         UserItem ui1 = new UserItem();
         when(userItemRepository.findByUser_Username(validUsername)).thenReturn(List.of(ui1));
 
         // When
-        List<UserItem> result = userItemService.getAllItemsFromUsers(validUsername);
+        List<UserItem> result = userItemService.getInventoryForUser(user);
 
         // Then
         assertThat(result).hasSize(1);
@@ -71,15 +72,11 @@ public class UserItemServiceTest {
     }
 
     @Test
-    void getAllItemsFromUsers_unhappyPath() {
+    void getInventoryForUser_unhappyPath() {
         // When / Then
-        assertThatThrownBy(() -> userItemService.getAllItemsFromUsers(null))
+        assertThatThrownBy(() -> userItemService.getInventoryForUser(null))
                 .isInstanceOf(DomainException.class)
-                .hasMessage("Username is needed to retrieve all items");
-
-        assertThatThrownBy(() -> userItemService.getAllItemsFromUsers(" "))
-                .isInstanceOf(DomainException.class)
-                .hasMessage("Username is needed to retrieve all items");
+                .hasMessage("User is needed to retrieve all items.");
     }
 
     @Test
@@ -101,7 +98,9 @@ public class UserItemServiceTest {
                 LocalDate.now().plusDays(5),
                 LocalDate.now(),
                 3,
-                "Desc");
+                "Desc",
+                user.getUsername()
+            );
 
         when(itemRepository.findById(validItemId)).thenReturn(Optional.of(item));
         when(userItemRepository.save(any(UserItem.class))).thenAnswer(i -> {
@@ -118,7 +117,7 @@ public class UserItemServiceTest {
         assertThat(result.get(0).id()).isEqualTo(validUserItemId);
 
         // Verify if notif is sent
-        verify(pushNotificationService).sendToDevice(eq("token123"), contains("Item(s) successfully updated!"));
+        verify(pushNotificationService).sendToDevice(eq("token123"), contains("Item(s) successfully saved!"));
     }
 
     @Test
@@ -141,8 +140,8 @@ public class UserItemServiceTest {
                 LocalDate.now().plusDays(10),
                 LocalDate.now(),
                 3,
-                "New Desc"
-
+                "New Desc",
+                user.getUsername()
         );
 
         when(userItemRepository.findById(validUserItemId)).thenReturn(Optional.of(existingItem));
@@ -171,13 +170,18 @@ public class UserItemServiceTest {
                 LocalDate.now().plusDays(5),
                 LocalDate.now(),
                 3,
-                "Desc");
+                "Desc",
+                user.getUsername()
+            );
 
         when(userItemRepository.findById(999L)).thenReturn(Optional.empty());
 
+        List<UserItemResponseDTO> batch = List.of(updateDto);
+
         // When / Then
-        assertThatThrownBy(() -> userItemService.saveBatch(List.of(updateDto), user))
-                .isInstanceOf(DomainException.class).hasMessageContaining("UserItem not found");
+        assertThatThrownBy(() -> userItemService.saveBatch(batch, user))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("UserItem not found");
     }
 
     @Test
@@ -197,12 +201,16 @@ public class UserItemServiceTest {
                 LocalDate.now().plusDays(5),
                 LocalDate.now(),
                 3,
-                "Desc");
+                "Desc",
+                otherUser.getUsername()
+            );
 
         when(userItemRepository.findById(validUserItemId)).thenReturn(Optional.of(exisitingItem));
 
+        List<UserItemResponseDTO> batch = List.of(updateDto);
+
         // When / Then
-        assertThatThrownBy(() -> userItemService.saveBatch(List.of(updateDto), currentUser))
+        assertThatThrownBy(() -> userItemService.saveBatch(batch, currentUser))
                 .isInstanceOf(DomainException.class)
                 .hasMessage("Unauthorized update attempt.");
     }

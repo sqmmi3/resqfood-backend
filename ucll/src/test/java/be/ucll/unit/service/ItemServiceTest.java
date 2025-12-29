@@ -20,7 +20,7 @@ import be.ucll.repository.ItemRepository;
 import be.ucll.service.ItemService;
 
 @ExtendWith(MockitoExtension.class)
-public class ItemServiceTest {
+class ItemServiceTest {
 
     // Global given
     private final Long validId = 1L;
@@ -45,8 +45,7 @@ public class ItemServiceTest {
         List<Item> result = itemService.getAllItems();
 
         // Then
-        assertThat(result).hasSize(2);
-        assertThat(result).containsExactly(item1, item2);
+        assertThat(result).hasSize(2).containsExactly(item1, item2);
         verify(itemRepository).findAll();
     }
 
@@ -79,7 +78,6 @@ public class ItemServiceTest {
         // Given
         Item item = new Item(validName, validType);
         when(itemRepository.save(item)).thenReturn(item);
-        ;
 
         // When
         Item result = itemService.createItem(item);

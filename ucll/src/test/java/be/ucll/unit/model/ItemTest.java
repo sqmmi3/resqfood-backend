@@ -15,7 +15,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
 @ExtendWith(MockitoExtension.class)
-public class ItemTest {
+class ItemTest {
     // Global given
     private final String validName = "Bananas";
     private final Item.Type validType = Item.Type.FRUIT;

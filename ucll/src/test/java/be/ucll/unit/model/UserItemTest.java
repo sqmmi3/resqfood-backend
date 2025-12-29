@@ -22,7 +22,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
 @ExtendWith(MockitoExtension.class)
-public class UserItemTest {
+class UserItemTest {
 
     // Global given
 

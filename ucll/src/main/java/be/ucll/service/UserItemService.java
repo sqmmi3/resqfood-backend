@@ -32,12 +32,16 @@ public class UserItemService {
         this.notificationService = notificationService;
     }
 
-    public List<UserItem> getAllItemsFromUsers(String username) {
-        if (username == null || username.isBlank()) {
-            throw new DomainException("Username is needed to retrieve all items");
+    public List<UserItem> getInventoryForUser(User user) {
+        if (user == null) {
+            throw new DomainException("User is needed to retrieve all items.");
         }
 
-        return userItemRepository.findByUser_Username(username);
+        if (user.getHousehold() != null) {
+            return userItemRepository.findByUser_Household_Id(user.getHousehold().getId());
+        }
+
+        return userItemRepository.findByUser_Username(user.getUsername());
     }
 
     @Transactional
@@ -108,16 +112,22 @@ public class UserItemService {
                 message,
                 relatedItemId);
     }
+}
 
     @Transactional
     public void deleteUserItem(Long id, User user) {
         UserItem userItem = userItemRepository.findById(id)
-                .orElseThrow(() -> new DomainException("Item not found with id: " + id));
+            .orElseThrow(() -> new DomainException("Item not found with id: " + id));
 
-        if (!userItem.getUser().getId().equals(user.getId())) {
+        boolean isOwner = userItem.getUser().getId().equals(user.getId());
+        boolean isSameHousehold = user.getHousehold() != null &&
+                                  userItem.getUser().getHousehold() != null &&
+                                  user.getHousehold().getId().equals(userItem.getUser().getHousehold().getId());
+
+        if (!isOwner && !isSameHousehold) {
             throw new DomainException("You do not have permission to delete this item.");
         }
-
+        
         userItemRepository.delete(userItem);
 
         sendSuccessNotification(user, "Instance of item successfully removed!", null);
