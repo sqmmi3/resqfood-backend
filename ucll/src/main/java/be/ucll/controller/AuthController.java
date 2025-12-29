@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import be.ucll.config.util.JwtService;
 import be.ucll.dto.JwtResponse;
 import be.ucll.dto.LoginRequest;
+import be.ucll.model.User;
+import be.ucll.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,10 +22,13 @@ public class AuthController {
   private final AuthenticationManager authManager;
 
   private final JwtService jwtService;
+  
+  private final UserService userService;
 
-  public AuthController(AuthenticationManager authManager, JwtService jwtService) {
+  public AuthController(AuthenticationManager authManager, JwtService jwtService, UserService userService) {
     this.authManager = authManager;
     this.jwtService = jwtService;
+    this.userService = userService;
   }
 
   @PostMapping("/login")
@@ -34,8 +39,11 @@ public class AuthController {
 
     SecurityContextHolder.getContext().setAuthentication(auth);
 
+    User user = userService.getUser(auth.getName());
     String token = jwtService.generateToken(auth.getName());
 
-    return ResponseEntity.ok(new JwtResponse(token));
+    String householdCode = (user.getHousehold() != null) ? user.getHousehold().getInviteCode() : null;
+
+    return ResponseEntity.ok(new JwtResponse(token, user.getUsername(), householdCode));
   }
 }

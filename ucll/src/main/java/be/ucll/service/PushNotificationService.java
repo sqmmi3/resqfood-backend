@@ -2,6 +2,7 @@ package be.ucll.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import com.google.firebase.messaging.AndroidConfig;
@@ -16,11 +17,16 @@ public class PushNotificationService {
   private static final Logger logger = LoggerFactory.getLogger(PushNotificationService.class);
   private final FirebaseMessaging firebaseMessaging;
 
-  public PushNotificationService(FirebaseMessaging firebaseMessaging) {
+  public PushNotificationService(@Nullable FirebaseMessaging firebaseMessaging) {
     this.firebaseMessaging = firebaseMessaging;
   }
 
   public void sendToDevice(String token, String notificationMessage) {
+    if (this.firebaseMessaging == null) {
+      logger.warn("Skipping FCM push notification (Firebase not initialized): {}", notificationMessage);
+      return;
+    }
+
     try {
       Notification notification = Notification.builder()
         .setTitle("ResQFood")

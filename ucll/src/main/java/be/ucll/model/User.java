@@ -1,5 +1,6 @@
 package be.ucll.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -58,6 +62,26 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserDeviceToken> deviceTokens = new ArrayList<>();
 
+  @JsonIgnore
+  @ManyToOne
+  @JoinColumn(name = "household_id", nullable = true)
+  private Household household;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  @Column(name = "items_rescued", nullable = false)
+  private int itemsRescued = 0;
+
+  public void incrementRescued() {
+    this.itemsRescued++;
+  }
+
+  @PrePersist
+  protected void onCreate() {
+    this.createdAt = LocalDateTime.now();
+  }
+
   protected User() {}
 
   public User(String username, String email, String password) {
@@ -97,6 +121,18 @@ public class User {
     return this.deviceTokens;
   }
 
+  public Household getHousehold() {
+    return this.household;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return this.createdAt;
+  }
+
+  public int getItemsRescued() {
+    return this.itemsRescued;
+  }
+
   // Setters
   public void setUsername(String newUsername) {
     this.username = newUsername;
@@ -108,6 +144,10 @@ public class User {
 
   public void setPassword(String newPassword) {
     this.password = newPassword;
+  }
+
+  public void setHousehold(Household newHousehold) {
+    this.household = newHousehold;
   }
 
   // Helper Methods
@@ -136,6 +176,6 @@ public class User {
 
   @Override
   public String toString() {
-    return "User{id=" + this.id + ", username=" + this.username + ", email=" + this.email + ", items=" + this.getItems() + "}";
+    return "User{id=" + this.id + ", username=" + this.username + ", household=" + (this.household != null ? household.getInviteCode() : "none") +  ", email=" + this.email + ", items=" + this.getItems() + "}";
   }    
 }

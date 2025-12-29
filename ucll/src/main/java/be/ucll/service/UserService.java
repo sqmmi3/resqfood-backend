@@ -1,11 +1,13 @@
 package be.ucll.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import be.ucll.dto.UserProfileDTO;
 import be.ucll.exception.DomainException;
 import be.ucll.model.Item;
 import be.ucll.model.User;
@@ -144,5 +146,22 @@ public class UserService {
     public User getUser(String username) {
         return userRepository.findByUsername(username)
             .orElseThrow(() -> new DomainException("User not found"));
+    }
+
+    public UserProfileDTO getUserProfile(User user) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy");
+        String formattedDate = user.getCreatedAt().format(formatter);
+
+        int rescued = user.getItemsRescued();
+        int currentExpired = userItemRepository.countExpiredItemsForUser(user);
+
+        return new UserProfileDTO(
+            user.getUsername(),
+            user.getEmail(),
+            user.getHousehold() != null ? user.getHousehold().getInviteCode() : "No Household",
+            formattedDate,
+            rescued,
+            currentExpired
+        );
     }
 }
