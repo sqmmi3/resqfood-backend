@@ -14,19 +14,22 @@ import be.ucll.repository.ItemRepository;
 import be.ucll.repository.UserItemRepository;
 import jakarta.transaction.Transactional;
 
+// TODO: Item name in notification?
+
 @Service
 public class UserItemService {
 
-    private final PushNotificationService pushNotificationService;
-    
+    private final NotificationService notificationService;
+
     private final UserItemRepository userItemRepository;
 
     private final ItemRepository itemRepository;
 
-    public UserItemService(UserItemRepository userItemRepository, ItemRepository itemRepository, PushNotificationService pushNotificationService) {
+    public UserItemService(UserItemRepository userItemRepository, ItemRepository itemRepository,
+            NotificationService notificationService) {
         this.userItemRepository = userItemRepository;
         this.itemRepository = itemRepository;
-        this.pushNotificationService = pushNotificationService;
+        this.notificationService = notificationService;
     }
 
     public List<UserItem> getInventoryForUser(User user) {
@@ -47,7 +50,7 @@ public class UserItemService {
             UserItem entity;
             if (dto.id() != null) {
                 entity = userItemRepository.findById(dto.id())
-                    .orElseThrow(() -> new DomainException("UserItem not found: " + dto.id()));
+                        .orElseThrow(() -> new DomainException("UserItem not found: " + dto.id()));
 
                 if (!entity.getUser().getId().equals(user.getId())) {
                     throw new DomainException("Unauthorized update attempt.");
@@ -59,22 +62,22 @@ public class UserItemService {
                 Item baseItem;
                 if (dto.itemId() != null) {
                     baseItem = itemRepository.findById(dto.itemId())
-                    .orElseThrow(() -> new DomainException("Item template not found"));
+                            .orElseThrow(() -> new DomainException("Item template not found"));
                 } else {
                     baseItem = itemRepository.findByNameContainingIgnoreCase(dto.itemName())
-                        .orElseGet(() -> {
-                            Item newItem = new Item();
-                            newItem.setName(dto.itemName());
-                            if (dto.type() != null) {
-                                try {
-                                    newItem.setType(Item.Type.valueOf(dto.type().toUpperCase()));
-                                } catch (IllegalArgumentException e) {
-                                    throw new DomainException("Invalid category: " + dto.type());
+                            .orElseGet(() -> {
+                                Item newItem = new Item();
+                                newItem.setName(dto.itemName());
+                                if (dto.type() != null) {
+                                    try {
+                                        newItem.setType(Item.Type.valueOf(dto.type().toUpperCase()));
+                                    } catch (IllegalArgumentException e) {
+                                        throw new DomainException("Invalid category: " + dto.type());
+                                    }
                                 }
-                            }
-                            newItem.setOpenedRule(dto.openedRule() != null ? dto.openedRule() : 3);
-                            return itemRepository.save(newItem);
-                        });
+                                newItem.setOpenedRule(dto.openedRule() != null ? dto.openedRule() : 3);
+                                return itemRepository.save(newItem);
+                            });
                 }
                 entity.setItem(baseItem);
             }
@@ -87,22 +90,27 @@ public class UserItemService {
             return UserItemMapper.toDTO(userItemRepository.save(entity));
         }).toList();
 
-        sendSuccessNotification(user, "Item(s) successfully saved!");
+        if (!results.isEmpty()) {
+            // If batch is 1 item we link id to Notification
+            Long relatedItemId = (results.size() == 1) ? results.get(0).id() : null;
+
+            String message = (results.size() == 1)
+                    ? "Item '" + results.get(0).itemName() + "' succesfully saved!"
+                    : results.size() + " items succesfully saved!";
+
+            sendSuccessNotification(user, message, relatedItemId);
+        }
 
         return results;
     }
 
-private void sendSuccessNotification(User user, String message) {
-    if (user.getHousehold() != null) {
-        user.getHousehold().getMembers().forEach(member -> {
-            member.getDeviceTokens().forEach(token -> 
-                pushNotificationService.sendToDevice(token.getToken(), message)
-            );
-        });
-    } else {
-        user.getDeviceTokens().forEach(token -> 
-            pushNotificationService.sendToDevice(token.getToken(), message)
-        );
+    private void sendSuccessNotification(User user, String message, Long relatedItemId) {
+        // Use NotificationService for persistance and Firebase push notification
+        notificationService.createAndSendNotification(
+                user,
+                "Inventory Update",
+                message,
+                relatedItemId);
     }
 }
 
@@ -122,6 +130,6 @@ private void sendSuccessNotification(User user, String message) {
         
         userItemRepository.delete(userItem);
 
-        sendSuccessNotification(user, "Instance of item successfully removed!");
+        sendSuccessNotification(user, "Instance of item successfully removed!", null);
     }
 }
