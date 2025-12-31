@@ -21,14 +21,11 @@ public class NotificationService {
         this.pushNotificationService = pushNotificationService;
     }
 
-    // This method replaces direct call to pushNotificationService
     @Transactional
     public void createAndSendNotification(User user, String title, String message, Long relatedItemId) {
-        // Save to db (History)
         Notification notification = new Notification(user, title, message, relatedItemId);
         notificationRepository.save(notification);
 
-        // Send to firebase (Real time notif)
         user.getDeviceTokens().forEach(token -> pushNotificationService.sendToDevice(token.getToken(), message));
     }
 

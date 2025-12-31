@@ -45,9 +45,7 @@ class ResQUserDetailsServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getUsername()).isEqualTo(validUsername);
         assertThat(result.getPassword()).isEqualTo(validPassword);
-
-        // Verify authorities
-        // Hardcoded "USER" in service
+        
         assertThat(result.getAuthorities()).hasSize(1).anyMatch(a -> a.getAuthority().equals("USER"));
     }
 
