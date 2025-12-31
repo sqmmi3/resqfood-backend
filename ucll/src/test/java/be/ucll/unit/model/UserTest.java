@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import be.ucll.model.Household;
 import be.ucll.model.Item;
 import be.ucll.model.User;
 import be.ucll.model.UserDeviceToken;
@@ -19,6 +20,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +39,9 @@ class UserTest {
 
     @Mock
     private Item mockItem;
+
+    @Mock
+    private Household household;
 
     @Mock
     private UserDeviceToken mockDeviceToken;
@@ -212,5 +218,49 @@ class UserTest {
 
         // Then
         assertThat(violations).isNotEmpty();
+    }
+
+    @Test
+    void incrementRescued_shouldIncreaseCount() {
+        User user = new User(validUsername, validEmail, validPassword);
+        assertThat(user.getItemsRescued()).isZero();
+
+        user.incrementRescued();
+        user.incrementRescued();
+
+        assertThat(user.getItemsRescued()).isEqualTo(2);
+    }
+
+    @Test
+    void onCreate_shouldSetCreateAt() {
+        User user = new User(validUsername, validEmail, validPassword);
+        assertThat(user.getCreatedAt()).isNull();
+
+        user.onCreate();
+
+        assertThat(user.getCreatedAt()).isNotNull();
+        assertThat(user.getCreatedAt()).isBeforeOrEqualTo(LocalDateTime.now());
+    }
+
+    @Test
+    void toString_shouldHandleUserWithNoItems() {
+        User user = new User(validUsername, validEmail, validPassword);
+
+        String result = user.toString();
+
+        assertThat(result)
+                .contains("username=" + validUsername)
+                .contains("items=[]")
+                .contains("household=none");
+    }
+
+    @Test
+    void userJoinsHousehold_ShouldReturnHouseholdEntity() {
+        User user = new User(validUsername, validEmail, validPassword);
+        assertThat(user.getHousehold()).isNull();
+
+        user.setHousehold(household);
+
+        assertThat(user.getHousehold()).isEqualTo(household);
     }
 }

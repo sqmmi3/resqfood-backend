@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import be.ucll.exception.DomainException;
 import be.ucll.model.Item;
 import be.ucll.model.User;
 import be.ucll.model.UserItem;
@@ -78,7 +79,6 @@ class UserItemTest {
         // Given
         UserItem userItem = new UserItem(mockUser, mockItem, futureDate);
         userItem.setOpenedRule(null);
-
         when(mockItem.getOpenedRule()).thenReturn(7);
 
         // When
@@ -105,13 +105,12 @@ class UserItemTest {
     void setOpenedDate_logic_happyPath() {
         // Given
         UserItem userItem = new UserItem(mockUser, mockItem, futureDate);
-        LocalDate validOpened = LocalDate.now();
 
         // When
-        userItem.setOpenedDate(validOpened);
+        userItem.setOpenedDate(today);
 
         // Then
-        assertThat(userItem.getOpenedDate()).isEqualTo(validOpened);
+        assertThat(userItem.getOpenedDate()).isEqualTo(today);
     }
 
     @Test
@@ -121,9 +120,8 @@ class UserItemTest {
         LocalDate invalidOpened = today.plusDays(1);
 
         // When / Then
-        assertThatThrownBy(() -> userItem.setOpenedDate(invalidOpened)).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> userItem.setOpenedDate(invalidOpened)).isInstanceOf(DomainException.class)
                 .hasMessage("Opened date cannot be after expiration date.");
-
     }
 
     @Test

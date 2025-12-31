@@ -3,6 +3,8 @@ package be.ucll.unit.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +37,7 @@ class ItemTest {
     // Happy path tests
 
     @Test
-    void createItem_happyPath() {
+    void createItem_ShouldInitializeWithDefaults() {
         // When
         Item item = new Item(validName, validType);
 
@@ -47,7 +49,7 @@ class ItemTest {
     }
 
     @Test
-    void updateItem_happyPath() {
+    void updateItem_ShouldUpdateItemWithNewValues() {
         // Given
         Item item = new Item(validName, validType);
         String newName = "Brocolli";
@@ -66,7 +68,7 @@ class ItemTest {
     }
 
     @Test
-    void addUserItem_happyPath() {
+    void addUserItem_ShouldEstablishBidirectionalRelationship() {
         // Given
         Item item = new Item(validName, validType);
 
@@ -74,6 +76,7 @@ class ItemTest {
         item.addUserItem(mockUserItem);
 
         // Then
+        assertThat(item.getUserItems()).hasSize(1);
         assertThat(item.getUserItems()).containsExactly(mockUserItem);
         verify(mockUserItem).setItem(item);
     }
@@ -92,12 +95,22 @@ class ItemTest {
         verify(mockUserItem).setItem(null);
     }
 
+    @Test
+    void toString_ShouldReturnCorrectFormat() {
+        Item item = new Item(validName, validType);
+        
+        String expected = "Item{id=null, name=Bananas, type=FRUIT}";
+        
+        assertThat(item.toString()).hasToString(expected);
+    }
+
     // Unhappy path tests
 
-    @Test
-    void createItem_unhappyPath_invalidName() {
+    @ParameterizedTest
+    @ValueSource(strings = {"", "   "})
+    void createItem_unhappyPath_invalidName(String invalidName) {
         // When
-        Item item = new Item("", validType);
+        Item item = new Item(invalidName, validType);
 
         // Then
         var violations = validator.validate(item);

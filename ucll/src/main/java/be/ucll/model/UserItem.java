@@ -3,6 +3,7 @@ package be.ucll.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import be.ucll.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -166,7 +167,7 @@ public class UserItem {
 
   public void setOpenedDate(LocalDate newOpenedDate) {
     if (newOpenedDate != null && newOpenedDate.isAfter(this.getExpirationDate())) {
-      throw new IllegalArgumentException("Opened date cannot be after expiration date.");
+      throw new DomainException("Opened date cannot be after expiration date.");
     }
     this.openedDate = newOpenedDate;
   }
