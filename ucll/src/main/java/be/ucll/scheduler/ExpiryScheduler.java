@@ -30,7 +30,8 @@ public class ExpiryScheduler {
         this.notificationService = notificationService;
     }
 
-    @Scheduled(cron = "0 0 9 * * *")
+    // @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(fixedDelay = 360000) // 360 000ms -> 360s -> 6 mins
     @Transactional
     public void checkExpiries() {
         logger.info("Running expiry scheduler...");
