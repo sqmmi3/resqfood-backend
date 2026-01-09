@@ -117,16 +117,16 @@ public class DbInitializer {
 
         Item tuna = itemRepository.findByNameContainingIgnoreCase("Tuna Everyday").orElseThrow(() -> new DomainException(itemNotFoundMessage));
 
-        UserItem sqmmi3milk1 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24), LocalDate.now(), 6);
+        UserItem sqmmi3milk1 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24), LocalDate.now().minusDays(4), 5);
         UserItem sqmmi3milk2 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(24));
         UserItem sqmmi3milk3 = new UserItem(sqmmi3, milk, LocalDate.now().plusDays(28));
-        UserItem sqmmi3bread1 = new UserItem(sqmmi3, bread, LocalDate.now().plusDays(5), LocalDate.now(), 4);
-        UserItem sqmmi3eggs1 = new UserItem(sqmmi3, eggs, LocalDate.now().plusDays(16));
+        UserItem sqmmi3bread1 = new UserItem(sqmmi3, bread, LocalDate.now().plusDays(5), LocalDate.now().minusDays(2), 5);
+        UserItem sqmmi3eggs1 = new UserItem(sqmmi3, eggs, LocalDate.now().plusDays(7), LocalDate.now().minusDays(5), 5);
         UserItem sqmmi3cheese1 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(48));
         UserItem sqmmi3cheese2 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(64));
-        UserItem sqmmi3cheese3 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(32), LocalDate.now(), 8);
-        UserItem johnsteak1 = new UserItem(testUser, steak, LocalDate.now().plusDays(6), 2);
-        UserItem johnsteak2 = new UserItem(testUser, steak, LocalDate.now().plusDays(7), 2);
+        UserItem sqmmi3cheese3 = new UserItem(sqmmi3, cheese, LocalDate.now().plusDays(32), LocalDate.now(), 7);
+        UserItem johnsteak1 = new UserItem(testUser, steak, LocalDate.now().plusDays(6), 1);
+        UserItem johnsteak2 = new UserItem(testUser, steak, LocalDate.now().plusDays(7), 1);
         UserItem johnmozzarella1 = new UserItem(testUser, mozzarella, LocalDate.now().plusDays(24));
         UserItem johnmozzarella2 = new UserItem(testUser, mozzarella, LocalDate.now().plusDays(24));
         UserItem johnnutella1 = new UserItem(testUser, nutella, LocalDate.now().plusDays(467), 93);

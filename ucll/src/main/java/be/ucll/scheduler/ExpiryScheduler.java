@@ -30,7 +30,8 @@ public class ExpiryScheduler {
         this.notificationService = notificationService;
     }
 
-    @Scheduled(cron = "0 0 9 * * *")
+    // @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(fixedDelay = 60000) // 360 000ms -> 360s -> 6 mins
     @Transactional
     public void checkExpiries() {
         logger.info("Running expiry scheduler...");
@@ -62,6 +63,7 @@ public class ExpiryScheduler {
         if (daysUntil < 0)
             return "Your " + itemName + " has expired!";
         if (REMINDER_DAYS.contains(daysUntil)) {
+            if (daysUntil == 1L) { return "Reminder: your " + itemName + " expires tomorrow!"; }
             return "Reminder: your " + itemName + " expires in " + daysUntil + " days!";
         }
         return null;
